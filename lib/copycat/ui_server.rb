@@ -13,22 +13,27 @@ module Copycat
         JSON.parse(redis.get("users:#{env["REMOTE_USER"]}"))
       end
     end
-
+    
+    def self.hash_user(username, password)
+      Digest::MD5.hexdigest("#{username}.#{password}.#{salt}")
+    end
+    
     use Rack::Auth::Basic do |username, password|
       redis = Redis.new(settings.redis)
       r = Redis::Namespace.new(settings.redis[:ns], :redis => redis)
       
       r.setnx "users:#{settings.default_username}", {
         "username" => settings.default_username,
-        "password" => settings.default_password,
         "superuser" => true,
         "name" => "Default User"
       }.to_json
       r.sadd "users", settings.default_username
+      r.sadd "user_hashes", hash_user(settings.default_username, settings.default_password)
       
-      (r.sismember("users", username) && JSON.parse(r.get("users:#{username}"))["password"] == password)
+      r.sismember "user_hashes", hash_user(username, password)
     end
     
+    set :salt, "Aingoomeichushae0ooshuso6Fiexaiqu0phophe"
     set :default_username, "admin"
     set :default_password, "password"
     
@@ -57,11 +62,11 @@ module Copycat
       redis.setnx "users:#{params[:username]}", { 
         "name" => params[:name], 
         "username" => params[:username], 
-        "password" => params[:password], 
         "superuser" => params[:superuser] == "true"
       }.to_json
       redis.sadd "users", params[:username]
-
+      redis.sadd "user_hashes", self.class.hash_user(params[:username], params[:password])
+      
       redirect "/users"
     end
   end
