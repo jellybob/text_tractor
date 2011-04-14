@@ -68,5 +68,19 @@ module Copycat
       
       redirect "/users"
     end
+
+    get '/projects/new' do
+      haml :"projects/new"
+    end
+    
+    get '/projects/:api_key' do |api_key|
+      @project = Copycat::Projects.get(api_key)
+      haml :"projects/show"
+    end
+
+    post '/projects' do
+      project = Copycat::Projects.create(params[:project])
+      redirect "/projects/#{project["api_key"]}"
+    end
   end
 end

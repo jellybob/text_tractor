@@ -22,8 +22,7 @@ RSpec.configure do |conf|
   end
   
   def redis
-    @redis = Redis.new(Copycat.configuration.redis)
-    @nsredis = Redis::Namespace.new(Copycat.configuration.redis[:ns], :redis => @redis)
+    Copycat.redis
   end
 
   def app
@@ -50,5 +49,9 @@ RSpec.configure do |conf|
       "superuser" => superuser,
       "name" => username
     }
+  end
+
+  def create_superuser(username, password)
+    create_user(username, password, true)
   end
 end

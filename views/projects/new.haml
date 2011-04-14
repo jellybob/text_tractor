@@ -1,0 +1,14 @@
+%h1 New Project
+%form{ action: "/projects", method: "post" }
+  %div.field
+    %label{ for: "name" } Project Name
+    %input{ type: "text", name: "project[name]", id: "name" }
+  
+  %h2 Users
+  %p Check the box next to each user who should be granted access to this project.
+  - users.each do |user|
+    %div.field
+      %label{ for: "user_#{user["username"]}" }= user["name"]
+      %input{ type: "checkbox", name: "project[users][]", id: "user_#{user["username"]}" }
+
+  %input{ type: "submit", value: "Create Project" }

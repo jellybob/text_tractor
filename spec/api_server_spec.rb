@@ -25,14 +25,6 @@ describe "the API server" do
         { "name" => "Test Project", "api_key" => "bob" }
       ]
     end
-    
-    it "generates a random API key if one hasn't been specified" do
-      post "/", :name => "Test Project"
-      
-      project = JSON.parse(last_response.body)
-      project.should have_key("api_key")
-      project["api_key"].should_not be_nil
-    end
 
     it "rejects a project with the same name as an existing project" do
       post "/", :name => "Test Project"

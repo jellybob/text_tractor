@@ -103,21 +103,11 @@ module Copycat
     
     # Creates a new project
     post "/" do
-      if redis.sismember "project_names", params[:name]
+      begin
+        project = Copycat::Projects.create(params)
+        project.to_json
+      rescue Copycat::Projects::DuplicateProjectName => e
         [ 422, { "error" => "The project name you specified is already in use." }.to_json ]
-      else
-        params[:api_key] ||= Copycat::ApiServer.random_key
-          
-        project = {
-          "name" => params[:name],
-          "api_key" => params[:api_key]
-        }.to_json
-        
-        redis.set "projects:#{params["api_key"]}", project
-        redis.sadd "projects", params[:api_key]
-        redis.sadd "project_names", params[:name]
-
-        project
       end
     end
   end

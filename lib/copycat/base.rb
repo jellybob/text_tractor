@@ -12,12 +12,10 @@ module Copycat
     
     def initialize(app=nil)
       super
-      @redis = Redis.new(Copycat.configuration.redis)
-      @nsredis = Redis::Namespace.new(Copycat.configuration.redis[:ns], :redis => @redis)
     end
 
     def redis
-      @nsredis
+      Copycat.redis
     end
   end
 end
