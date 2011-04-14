@@ -1,6 +1,5 @@
 require "rubygems"
 require "bundler/setup"
-require "copycat/api_server"
+require "copycat"
 
-run Rack::URLMap.new \
-  "/api/v2/projects" => Copycat::ApiServer.new
+run Copycat.application

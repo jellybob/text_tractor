@@ -1,0 +1,22 @@
+!!! 5
+%html
+  %head
+    %title Copycat
+    %link{ rel: "stylesheet", href: "/styles.css"}
+
+  %body
+    %header
+      %ul#navigation
+        %li
+          %a{ href: "/users" } Users
+        %li 
+          %a{ href: "/" } Projects
+
+      %h1 Copycat
+        
+    %section#content
+      =yield
+
+    %footer
+      %a{ href: "http://blankpad.net", target: "_top" }
+        %img{ src: "/images/blankpad.png", alt: "Blank Pad Development", title: "Developed by Blank Pad Development" }

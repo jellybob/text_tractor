@@ -1,14 +1,6 @@
 require 'spec_helper'
 require 'json'
 
-Copycat::ApiServer.set :environment, :test
-Copycat::ApiServer.set :redis, {
-  :ns => "copycat-test",
-  :host => "localhost",
-  :port => 6379,
-  :db => 8
-}
-
 describe "the API server" do
   def app
     Copycat::ApiServer

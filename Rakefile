@@ -2,5 +2,5 @@ require 'bundler'
 Bundler::GemHelper.install_tasks
 
 task :spec do
-  exec "rspec spec"
+  exec "bundle exec rspec spec"
 end
