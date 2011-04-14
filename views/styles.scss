@@ -83,6 +83,47 @@ body {
 
     h1 {
       font-size: 1.5em;
+      margin-bottom: 0.5em;
+    }
+    
+    h2 {
+      font-size: 1.3em;
+      margin-bottom: 0.5em;
+      margin-top: 1em;
+    }
+
+    p {
+      line-height: 1.4em;
+    }
+
+    ul {
+      margin-top: 1em;
+      margin-left: 1.2em;
+      list-style: disc;
+      
+      li {
+        margin-bottom: 0.5em;
+      }
+    }
+
+    form {
+      .field {
+        margin-bottom: 0.5em;
+        
+        label {
+          width: 10em;
+          display: block;
+          float: left;
+        }
+
+        input[type="text"] {
+          min-width: 30em;
+        }
+
+        input[type="submit"] {
+          margin-left: 15em;
+        }
+      }
     }
   }
 

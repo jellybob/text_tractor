@@ -7,8 +7,9 @@
   %body
     %header
       %ul#navigation
-        %li
-          %a{ href: "/users" } Users
+        - if current_user["superuser"]
+          %li
+            %a{ href: "/users" } Users
         %li 
           %a{ href: "/" } Projects
 

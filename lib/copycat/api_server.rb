@@ -6,16 +6,7 @@ require 'digest/md5'
 require 'rack/etag'
 
 module Copycat
-  class ApiServer < Sinatra::Application
-    use Rack::ETag
-    use Rack::ConditionalGet
-    
-    set :redis, {
-      :ns => "copycat",
-      :host => "localhost",
-      :port => 6379
-    }
-    
+  class ApiServer < Copycat::Base
     # Used to defer returning a list of blurbs so that the ETag can be checked first.
     class BlurbList
       attr_reader :redis, :api_key, :state
@@ -56,16 +47,6 @@ module Copycat
       def each
         yield blurbs.to_json
       end
-    end
-    
-    def initialize(app=nil)
-      super
-      @redis = Redis.new(settings.redis)
-      @nsredis = Redis::Namespace.new(settings.redis[:ns], :redis => @redis)
-    end
-
-    def redis
-      @nsredis
     end
     
     def self.random_key

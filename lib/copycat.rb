@@ -1,4 +1,5 @@
 require 'copycat/version'
+require 'copycat/base'
 require 'copycat/api_server'
 require 'copycat/ui_server'
 
