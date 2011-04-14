@@ -10,7 +10,7 @@ Copycat::UiServer.set :default_password, "password"
 if ENV.key? "REDISTOGO_URL"
   uri = URI.parse(ENV["REDISTOGO_URL"])
   Copycat::UiServer.set :redis, {
-    :host => uri.hostname,
+    :host => uri.host,
     :port => uri.port,
     :password => uri.password,
     :username => uri.user
