@@ -39,6 +39,9 @@ Currently Copycat only supports publishing content in one go using the `copycopt
 you want support for publishing individual pieces of content then you'll need to submit a patch unless I end up with a client who
 wants that feature. (That client could be you if you really want it.)
 
+If you're deploying this on your own server, keep in mind that it requires Ruby 1.9.2 (I might relax that requirement if there's
+enough demand, but it makes the syntax in the views much cleaner).
+
 ## Contributing ##
 
 If you want to contribute, fork this repository, and submit a pull request when you're done. I won't accept patches which don't
