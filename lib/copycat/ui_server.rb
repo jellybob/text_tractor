@@ -1,5 +1,6 @@
 require 'haml'
 require 'sass'
+require 'digest/md5'
 
 module Copycat
   class UiServer < Copycat::Base
