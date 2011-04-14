@@ -5,14 +5,6 @@ describe "the API server" do
   def app
     Copycat::ApiServer
   end
-  
-  def redis
-    @redis ||= Redis::Namespace.new(app.redis[:ns], :redis => Redis.new(app.redis))
-  end
-
-  before(:each) do
-    redis.flushdb
-  end
 
   describe "creating and listing projects" do
     it "allows the creation of a new project, returning the details" do

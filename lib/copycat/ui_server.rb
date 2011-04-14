@@ -16,27 +16,25 @@ module Copycat
     end
     
     def self.hash_user(username, password)
-      Digest::MD5.hexdigest("#{username}.#{password}.#{salt}")
+      Digest::MD5.hexdigest("#{username}.#{password}.#{Copycat.configuration.salt}")
     end
     
     use Rack::Auth::Basic do |username, password|
-      redis = Redis.new(settings.redis)
-      r = Redis::Namespace.new(settings.redis[:ns], :redis => redis)
+      redis = Redis.new(Copycat.configuration.redis)
+      r = Redis::Namespace.new(Copycat.configuration.redis[:ns], :redis => redis)
       
-      r.setnx "users:#{settings.default_username}", {
-        "username" => settings.default_username,
+      r.setnx "users:#{Copycat.configuration.default_username}", {
+        "username" => Copycat.configuration.default_username,
         "superuser" => true,
         "name" => "Default User"
       }.to_json
-      r.sadd "users", settings.default_username
-      r.sadd "user_hashes", hash_user(settings.default_username, settings.default_password)
+      r.sadd "users", Copycat.configuration.default_username
+      r.sadd "user_hashes", hash_user(Copycat.configuration.default_username, Copycat.configuration.default_password)
       
       r.sismember "user_hashes", hash_user(username, password)
     end
     
-    set :salt, "Aingoomeichushae0ooshuso6Fiexaiqu0phophe"
-    set :default_username, "admin"
-    set :default_password, "password"
+    set :environment, Copycat.configuration.environment
     
     set :public, File.expand_path("../../../assets", __FILE__)
     set :views, File.expand_path("../../../views", __FILE__)

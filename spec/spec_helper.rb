@@ -4,14 +4,14 @@ require 'capybara/rspec'
 require 'copycat'
 require 'redis'
 
-Copycat::UiServer.set :environment, :test
-Copycat::UiServer.set :redis, {
-  :ns => "copycat:test",
-  :db => 8
-}
+Copycat.config do |c|
+  c.redis = {
+    ns: "copycat:test",
+    db: 8
+  }
 
-Copycat::ApiServer.set :environment, :test
-Copycat::ApiServer.set :redis, Copycat::UiServer.settings.redis
+  c.environment = :test
+end
 
 RSpec.configure do |conf|
   conf.include Rack::Test::Methods
@@ -22,7 +22,8 @@ RSpec.configure do |conf|
   end
   
   def redis
-    Redis.new(Copycat::UiServer.settings.redis)
+    @redis = Redis.new(Copycat.configuration.redis)
+    @nsredis = Redis::Namespace.new(Copycat.configuration.redis[:ns], :redis => @redis)
   end
 
   def app
@@ -31,12 +32,12 @@ RSpec.configure do |conf|
   Capybara.app = app
   
   def login
-    basic_authorize Copycat::UiServer.settings.default_username, Copycat::UiServer.settings.default_password
+    basic_authorize Copycat.configuration.default_username, Copycat.configuration.default_password
   end
   
   def login_for_capybara(username = nil, password = nil)
-    username ||= Copycat::UiServer.settings.default_username
-    password ||= Copycat::UiServer.settings.default_password
+    username ||= Copycat.configuration.default_username
+    password ||= Copycat.configuration.default_password
     
     Capybara.current_session.driver.basic_authorize username, password
   end

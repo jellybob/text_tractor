@@ -10,16 +10,10 @@ module Copycat
     use Rack::ETag
     use Rack::ConditionalGet
     
-    set :redis, {
-      :ns => "copycat",
-      :host => "localhost",
-      :port => 6379
-    }
-
     def initialize(app=nil)
       super
-      @redis = Redis.new(settings.redis)
-      @nsredis = Redis::Namespace.new(settings.redis[:ns], :redis => @redis)
+      @redis = Redis.new(Copycat.configuration.redis)
+      @nsredis = Redis::Namespace.new(Copycat.configuration.redis[:ns], :redis => @redis)
     end
 
     def redis
