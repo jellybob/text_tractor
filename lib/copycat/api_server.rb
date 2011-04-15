@@ -15,26 +15,11 @@ module Copycat
       end
       
       def blurbs
-        blurbs = {}
-        redis.smembers("projects:#{api_key}:#{state}_blurb_keys").each do |key|
-          blurbs[key] = redis.get "projects:#{api_key}:#{state}_blurbs:#{key}"
-        end
-
-        blurbs
+        Copycat::Projects.blurbs(state, api_key)
       end
       
-      def update(blurbs)
-        changed = false
-        JSON.parse(blurbs).each do |key, value|
-          if redis.setnx "projects:#{api_key}:#{state}_blurbs:#{key}", value
-            redis.sadd "projects:#{api_key}:#{state}_blurb_keys", key
-            changed = true
-          end
-        end
-        
-        redis.set "projects:#{api_key}:#{state}_blurbs_etag", Copycat::ApiServer.random_key if changed
-        
-        true
+      def update(blurbs, options = {})
+        Copycat::Projects.update_blurbs(state, api_key, JSON.parse(blurbs), options)
       end
       
       def each
@@ -64,7 +49,7 @@ module Copycat
 
       draft = BlurbList.new(redis, api_key, "draft")
       published = BlurbList.new(redis, api_key, "published")
-      published.update draft.blurbs.to_json
+      published.update draft.blurbs.to_json, :overwrite => true
       
       [ 200, "OK" ]
     end

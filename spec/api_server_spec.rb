@@ -55,38 +55,6 @@ describe "the API server" do
         last_response.should be_ok
         last_response.body.should == "OK"
       end
-
-      it "saves the new translations" do
-        redis.get("projects:test:draft_blurbs:application.home.title").should eq "Home Page"
-        redis.get("projects:test:draft_blurbs:application.home.body").should eq "This is the home page."
-      end
-      
-      it "correctly retains quotes" do
-        redis.get("projects:test:draft_blurbs:application.home.quoted").should eq %q{"I would like to test quoting." said Jon.}
-      end
-
-      it "generates a new ETag if the translations have changed" do
-        redis.get("projects:test:draft_blurbs_etag").should_not be_nil
-      end
-
-      it "does not replace the content of existing translations" do
-        post "/test/draft_blurbs", {
-          "application.home.title" => "A different title"
-        }.to_json
-
-        last_response.should be_ok
-        last_response.body.should == "OK"
-        redis.get("projects:test:draft_blurbs:application.home.title").should eq "Home Page"
-      end
-
-      it "does not generate a new ETag if the translations did not change" do
-        previous_etag = redis.get("projects:test:draft_blurbs_etag")
-
-        post "/test/draft_blurbs", {
-          "application.home.title" => "A different title"
-        }.to_json
-        redis.get("projects:test:draft_blurbs_etag").should == previous_etag
-      end
     end
 
     context "when the project does not exist" do
@@ -101,7 +69,7 @@ describe "the API server" do
   describe "returning the draft blurbs for a project" do
     context "when the project exists" do
       before(:each) do
-        post "/", :name => "Test Project", :api_key => "test"
+        Copycat::Projects.create name: "Test Project", api_key: "test"
 
         # That's the format we get it in from copycopter_client
         post "/test/draft_blurbs", {
@@ -160,9 +128,8 @@ describe "the API server" do
   describe "returning the published blurbs for a project" do
     context "when the project exists" do
       before(:each) do
-        post "/", :name => "Test Project", :api_key => "test"
+        Copycat::Projects.create name: "Test Project", api_key: "test"
 
-        # That's the format we get it in from copycopter_client
         post "/test/published_blurbs", {
           "application.home.title" => "Home Page",
           "application.home.body" => "This is the home page."
@@ -236,7 +203,7 @@ describe "the API server" do
 
         post "/test/deploys"
         get "/test/published_blurbs"
-        JSON.parse(last_response.body).should ==  {
+        JSON.parse(last_response.body).should == {
           "application.home.title" => "A Title"
         }
       end

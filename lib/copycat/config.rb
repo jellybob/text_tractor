@@ -35,9 +35,14 @@ module Copycat
     def port
       @port ||= 80
     end
-
+    
+    def ssl=(value)
+      @ssl = value
+    end
+    
     def ssl
       @ssl = true if @ssl.nil?
+      @ssl
     end
   end
 end

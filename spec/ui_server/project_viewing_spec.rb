@@ -17,4 +17,24 @@ describe "working with a project", :type => :request do
       page.should have_content %q{config.secure = false}
     end
   end
+
+  context "when the project has had some blurbs added to it" do
+    before(:each) do
+      Copycat::Projects.update_draft_blurbs("test", {
+        "application.home.title" => "Home Page"
+      })
+    end
+
+    it "displays a list of all the known blurbs on the project index" do
+      visit '/projects/test'
+      page.should have_content "Application / Home / Title"
+      page.should have_content "Home Page"
+    end
+
+    it "updates the blurb content on a POST" do
+      post "/projects/test/application/home/title", :blurb => "Test"
+
+      Copycat::Projects.draft_blurbs("test")["application.home.title"].should == "Test"
+    end
+  end
 end

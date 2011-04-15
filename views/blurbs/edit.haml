@@ -1,0 +1,3 @@
+%form{ method: "post", action: "/projects/#{@api_key}/#{@path}" }
+  %textarea{ name: "blurb" }= @blurb.strip
+  %input{ type: "submit", value: "Save" }

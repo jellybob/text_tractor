@@ -100,4 +100,84 @@ describe Copycat::Projects do
       Copycat::Projects.authorised?({ "superuser" => false, "username" => "frank@example.org" }, "test")
     end
   end
+
+  specify { Copycat::Projects.should respond_to(:update_draft_blurbs) }
+  describe "updating the draft blurbs" do
+    before(:each) do
+      Copycat::Projects.create(name: "Test", api_key: "test")
+      Copycat::Projects.update_draft_blurbs "test", {
+        "application.home.title" => "Home Page",
+        "application.home.body" => "This is the home page.",
+        "application.home.quoted" => %q{"I would like to test quoting." said Jon.}
+      }
+    end
+    
+    it "saves the new translations" do
+      redis.get("projects:test:draft_blurbs:application.home.title").should eq "Home Page"
+      redis.get("projects:test:draft_blurbs:application.home.body").should eq "This is the home page."
+    end
+    
+    it "correctly retains quotes" do
+      redis.get("projects:test:draft_blurbs:application.home.quoted").should eq %q{"I would like to test quoting." said Jon.}
+    end
+
+    it "generates a new ETag if the translations have changed" do
+      redis.get("projects:test:draft_blurbs_etag").should_not be_nil
+    end
+
+    it "does not replace the content of existing translations by default" do
+      Copycat::Projects.update_draft_blurbs "test", {
+        "application.home.title" => "A different title"
+      }
+
+      redis.get("projects:test:draft_blurbs:application.home.title").should eq "Home Page"
+    end
+
+    it "replaces the content of existing translations if :overwrite is set" do
+      Copycat::Projects.update_draft_blurbs "test", {
+        "application.home.title" => "A different title"
+      }, :overwrite => true
+      
+      redis.get("projects:test:draft_blurbs:application.home.title").should eq "A different title"
+    end
+
+    it "does not generate a new ETag if the translations did not change" do
+      previous_etag = redis.get("projects:test:draft_blurbs_etag")
+      
+      Copycat::Projects.update_draft_blurbs "test", {
+        "application.home.title" => "A different title"
+      }
+      redis.get("projects:test:draft_blurbs_etag").should == previous_etag
+    end
+  end
+
+  specify { Copycat::Projects.should respond_to(:draft_blurbs) }
+  describe "getting the draft blurbs for a project" do
+    context "when the project exists" do
+      before(:each) do
+        Copycat::Projects.create(name: "Test Project", api_key: "test")
+
+        # That's the format we get it in from copycopter_client
+        Copycat::Projects.update_draft_blurbs("test", {
+          "application.home.title" => "Home Page",
+          "application.home.body" => "This is the home page."
+        })
+      end
+
+      subject { Copycat::Projects.draft_blurbs("test") }
+      
+      it "returns all the translations" do
+        subject.should == {
+          "application.home.title" => "Home Page",
+          "application.home.body" => "This is the home page."
+        }
+      end
+    end
+
+    context "when the project does not exist" do
+      it "returns nil" do
+        Copycat::Projects.draft_blurbs("foo").should be_nil
+      end
+    end
+  end
 end

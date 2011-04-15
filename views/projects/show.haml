@@ -1,1 +1,8 @@
 %h1= @project["name"]
+%p Double click on a phrase to edit it.
+
+%dl
+  - @blurbs.sort.each do |key, value|
+    %dt= key.split(".").reject { |part| part == "en" }.collect { |part| part.gsub("_", " ").capitalize }.join(" / ")
+    %dd{ "data-key" => key }
+      %p= value
