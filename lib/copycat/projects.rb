@@ -43,12 +43,14 @@ module Copycat
     def self.for_user(user)
       projects = []
       redis.smembers("projects").each do |p|
-        if user["superuser"] || redis.sismember("project_users:#{p}", user["username"])
-          projects << get(p)
-        end
+        projects << get(p) if authorised? user, p
       end
 
       projects.sort { |a, b| a["name"] <=> b["name"] }
+    end
+
+    def self.authorised?(user, api_key)
+      user["superuser"] || redis.sismember("project_users:#{api_key}", user["username"])
     end
   end
 end

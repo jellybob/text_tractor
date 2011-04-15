@@ -81,4 +81,23 @@ describe Copycat::Projects do
       projects.first["name"].should eq "Assigned Project"
     end
   end
+
+  specify { Copycat::Projects.should respond_to(:authorised?) }
+  describe "checking authorisation for a project" do
+    before(:each) do
+      Copycat::Projects.create(name: "Test", api_key: "test", users: [ "bob@example.org" ])
+    end
+
+    it "returns true if the user is a super user" do
+      Copycat::Projects.authorised?({ "superuser" => true }, "test")
+    end
+
+    it "returns true if the user is in the list of assigned users for the project" do
+      Copycat::Projects.authorised?({ "superuser" => false, "username" => "bob@example.org" }, "test")
+    end
+    
+    it "returns false if the user is not in the list of assigned users for the project" do
+      Copycat::Projects.authorised?({ "superuser" => false, "username" => "frank@example.org" }, "test")
+    end
+  end
 end

@@ -4,11 +4,9 @@ describe "project management" do
   context "as a superuser" do
     before(:each) do
       create_superuser "jim@example.org", "password"
-      login_for_capybara "jim@example.org", "password"
+      login "jim@example.org", "password"
     end
     
-    pending "it allows access to the project list"
-
     it "it lists all projects" do
       Copycat::Projects.create(name: "Test Project")
       Copycat::Projects.create(name: "User Specified Project", users: [ "jim@example.org" ])
@@ -31,20 +29,53 @@ describe "project management" do
       page.should have_content "Example Project"
     end
 
-    pending "it allows access to a project the user has been explicitly added to"
-    pending "it allows access to a project the user has not been added to"
+    it "allows access to a project the user has been explicitly added to" do
+      project = Copycat::Projects.create(name: "User Specified Project", users: [ "jim@example.org" ])
+      
+      get "/projects/#{project["api_key"]}"
+      last_response.status.should eq 200
+    end
+
+    it "allows access to a project the user has not been added to" do
+      project = Copycat::Projects.create(name: "User Specified Project")
+      
+      get "/projects/#{project["api_key"]}"
+      last_response.status.should eq 200
+    end
   end
 
   context "as a normal user" do
     before(:each) do
+      Copycat::Projects.create(name: "Test Project", api_key: "test")
+      Copycat::Projects.create(name: "User Specified Project", api_key: "user", users: [ "bob@example.org" ])
+      
       create_user "bob@example.org", "password"
-      login_for_capybara "bob@example.org", "password"
+      login "bob@example.org", "password"
     end
 
-    pending "denies access to create a new project"
-    pending "it lists only the projects the user has been added to"
-    pending "allows access to a projec the user has been added to"
-    pending "it denies access to project the user has not been added to"
+    it "denies access to create a new project" do
+      visit '/'
+      page.should_not have_content "Create a Project"
+
+      get '/projects/new'
+      last_response.status.should eq 403
+    end
+    
+    it "lists only the projects the user has been added to" do
+      visit '/'
+      page.should have_content "User Specified Project"
+      page.should_not have_content "Test Project"
+    end
+
+    it "allows access to a project the user has been added to" do
+      get '/projects/user'
+      last_response.status.should eq 200
+    end
+
+    it "denies access to project the user has not been added to" do
+      get '/projects/test'
+      last_response.status.should eq 403
+    end
   end
 
   context "when not logged in" do

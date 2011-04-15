@@ -19,17 +19,17 @@ describe "authentication", :type => :request do
   describe "managing users" do
     it "denies access to user who is not a superuser" do
       create_user "bob@example.org", "p@ssw0rd"
-      login_for_capybara "bob@example.org", "p@ssw0rd"
+      login "bob@example.org", "p@ssw0rd"
 
       visit "/"
       page.should_not have_content "Users"
 
       visit "/users"
-      Capybara.current_session.status_code.should eq 401
+      Capybara.current_session.status_code.should eq 403
     end
 
     it "allows access to the default user" do
-      login_for_capybara
+      login
 
       visit "/"
       click_link "Users"
@@ -39,7 +39,7 @@ describe "authentication", :type => :request do
     end
 
     it "allows the creation of a new user" do
-      login_for_capybara
+      login
 
       visit "/users"
 
@@ -52,7 +52,7 @@ describe "authentication", :type => :request do
       
       page.should have_content "Bob Hoskins"
 
-      login_for_capybara "bob@example.org", "p@ssw0rd"
+      login "bob@example.org", "p@ssw0rd"
       visit "/"
       Capybara.current_session.status_code.should eq 200
     end

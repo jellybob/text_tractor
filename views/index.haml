@@ -8,4 +8,6 @@
           %a{ href: "/projects/#{project["api_key"]}" }= project["name"]
   - else
     %p It doesn't look like you've got any projects yet.
-  %a#new_project{ href: "/projects/new" } Create a Project
+
+  - if current_user["superuser"]
+    %a#new_project{ href: "/projects/new" } Create a Project

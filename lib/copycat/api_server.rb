@@ -47,7 +47,7 @@ module Copycat
     end
     
     def project(api_key)
-      Copycat::Projects.get(api_key)
+      Projects.get(api_key)
     end
   
     def project_exists?(api_key)
@@ -97,9 +97,9 @@ module Copycat
     # Creates a new project
     post "/" do
       begin
-        project = Copycat::Projects.create(params)
+        project = Projects.create(params)
         project.to_json
-      rescue Copycat::Projects::DuplicateProjectName => e
+      rescue Projects::DuplicateProjectName => e
         [ 422, { "error" => "The project name you specified is already in use." }.to_json ]
       end
     end

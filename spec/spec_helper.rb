@@ -30,25 +30,16 @@ RSpec.configure do |conf|
   end
   Capybara.app = app
   
-  def login
-    basic_authorize Copycat.configuration.default_username, Copycat.configuration.default_password
-  end
-  
-  def login_for_capybara(username = nil, password = nil)
+  def login(username = nil, password = nil)
     username ||= Copycat.configuration.default_username
     password ||= Copycat.configuration.default_password
     
+    basic_authorize username, password
     Capybara.current_session.driver.basic_authorize username, password
   end
-
+  
   def create_user(username, password, superuser = false)
-    login
-    post "/users", {
-      "username" => username,
-      "password" => password,
-      "superuser" => superuser,
-      "name" => username
-    }
+    Copycat::Users.create(name: username, username: username, password: password, superuser: superuser)
   end
 
   def create_superuser(username, password)

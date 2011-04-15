@@ -17,5 +17,9 @@ module Copycat
     def redis
       Copycat.redis
     end
+
+    def not_authorised
+      [ 403, "Not Authorised" ]
+    end
   end
 end
