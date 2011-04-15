@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.description = %q{Copycat provides a web interface so that your clients can edit their copy, while you get on with more interesting things.}
 
   s.files         = `git ls-files`.split("\n")
-  s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
+  s.test_files    = `git ls-files -- {test,spec}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
   
