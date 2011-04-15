@@ -1,17 +1,11 @@
 # Copycat #
 
+This project will be changing it's name just as soon as I can think of a new one, after Thoughtbot
+(quite legitimately) requested that I remove the word "copy" from the name, as it's a part of their
+trademark.
+
 Copycat is an Open Source implementation of Copycopter's API, and web interface to allow clients to
 edit the copy on their websites. It's designed to be compatible with the copycopter_client gem.
-
-## Legal Disclaimer ##
-
-I have no idea how legal this is. I'm fairly sure that implementing somebody else's API isn't covered
-by copyright law, but it's possible there are either patents, or clauses under DMCA which makes using
-this software illegal where you live. I take no responsibility if Thoughtbot come knocking on your door
-with a lawyer.
-
-Having said that, somebody implemented support for the Hoptoad client in Redmine, so there's at least some
-precedent for them not prosecuting people.
 
 ## Why Rebuild Copycopter? ##
 
@@ -58,7 +52,15 @@ come with accompanying tests, but I am quite happy to help you write those tests
 * Add some filtering to the web interface. Currently it just dumps the complete list on the screen at once.
 * Allow publishing from the web interface.
 
+## Thanks ##
+
+Thank you to Thoughtbot, who other then requesting that I change the project's name from it's original one,
+which was purposely similar to Copycopter, have been incredibly accomodating towards me providing a method
+for people to avoid paying them money.
+
+You should go and sign up for either [Hoptoad](http://hoptaodapp.com) or [Tracjectory](http://apptrajectory.com), both which
+I highly recommend.
+
 ## Licensing ##
 
-Copycat is developed by Blank Pad Development (http://blankpad.net), and released under the MIT License. As stated earlier, I
-take no responsibility for Thoughtbot sueing you.
+Copycat is developed by Blank Pad Development (http://blankpad.net), and released under the MIT License.
