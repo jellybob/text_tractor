@@ -1,0 +1,16 @@
+%h1= @project["name"]
+%p It doesn't look like you've set up your application to work with Copycat yet. If you know what you're doing your API key is:
+%p.api_key= @project["api_key"]
+
+%p Otherwise, follow the instructions below to configure a Rails 3 application:
+
+%p Add Copycopter client to your Gemfile
+%code gem "copycopter_client"
+
+%p Then create config/initializers/copycat.rb with the following content:
+%code= Copycat::Projects.configuration_block(@project)
+
+%p And finally, restart your application server. Your appliction will then upload translations and this page will disappear.
+%p 
+  As you open each page you'll see the translations defined on those pages appear here. Any changes you make from this web interface
+  will appear within your development and staging applications shortly afterwards.

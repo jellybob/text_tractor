@@ -59,9 +59,10 @@ module Copycat
     
     get '/projects/:api_key' do |api_key|
       return not_authorised unless Projects.authorised?(current_user, api_key)
-      
+
       @project = Projects.get(api_key)
-      haml :"projects/show"
+      haml :"projects/getting_started"
+      #haml :"projects/show"
     end
 
     post '/projects' do

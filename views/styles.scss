@@ -94,6 +94,7 @@ body {
 
     p {
       line-height: 1.4em;
+      margin: 0.5em 0;
     }
 
     ul {
@@ -104,6 +105,24 @@ body {
       li {
         margin-bottom: 0.5em;
       }
+    }
+   
+    p.api_key {
+      text-align: center;
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+    
+    code {
+      background-color: #333;
+      border: 2px solid #999;
+      color: white;
+      display: block;
+      font-family: monospace;
+      white-space: pre;
+      padding: 0.5em;
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
     }
 
     form {

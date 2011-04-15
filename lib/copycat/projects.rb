@@ -52,5 +52,16 @@ module Copycat
     def self.authorised?(user, api_key)
       user["superuser"] || redis.sismember("project_users:#{api_key}", user["username"])
     end
+
+    def self.configuration_block(project)
+      <<EOF
+      Copycopter::Client.configure do |config|
+  config.api_key = "#{project["api_key"]}"
+  config.host    = "#{Copycat.configuration.hostname}"
+  config.port    = #{Copycat.configuration.port}
+  config.secure  = #{Copycat.configuration.ssl ? "true" : "false"}
+end
+EOF
+    end
   end
 end

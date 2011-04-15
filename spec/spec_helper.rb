@@ -11,6 +11,9 @@ Copycat.config do |c|
   }
 
   c.environment = :test
+  c.hostname = "example.host"
+  c.port = 8000
+  c.ssl = false
 end
 
 RSpec.configure do |conf|

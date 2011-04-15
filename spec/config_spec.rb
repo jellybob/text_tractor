@@ -17,7 +17,10 @@ describe Copycat::Config do
     it { should respond_to(:default_password) }
     it { should respond_to(:environment) }
     it { should respond_to(:salt) }
-
+    it { should respond_to(:hostname) }
+    it { should respond_to(:port) }
+    it { should respond_to(:ssl) }
+    
     describe "setting the redis option" do
       it "defaults to an empty hash" do
         subject.redis.should == {}
@@ -38,6 +41,16 @@ describe Copycat::Config do
           ns: "namespace"
         }
       end
+    end
+  end
+
+  describe "client configuration options" do
+    it "defaults the port to 80" do
+      subject.port.should eq 80
+    end
+
+    it "defaults ssl to true" do
+      subject.ssl.should eq true
     end
   end
 end

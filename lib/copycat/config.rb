@@ -11,7 +11,7 @@ module Copycat
   end
 
   class Config
-    attr_accessor :redis, :environment, :default_username, :default_password, :salt
+    attr_accessor :redis, :environment, :default_username, :default_password, :salt, :hostname, :port, :ssl
     
     def redis
       @redis ||= {}
@@ -30,6 +30,14 @@ module Copycat
       else
         @redis = value
       end
+    end
+
+    def port
+      @port ||= 80
+    end
+
+    def ssl
+      @ssl = true if @ssl.nil?
     end
   end
 end
