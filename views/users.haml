@@ -2,7 +2,7 @@
 %p Listed below are the currently available users. You can only create users from here. To change their details, you'll have to get dirty in the console.
 
 %ul
-  - users.each do |user|
+  - @users.each do |user|
     %li
       = user["name"]
       = "(Superuser)" if user["superuser"]
@@ -11,19 +11,19 @@
 %form{ method: "post" }
   %div.field
     %label{ for: "name" } Name
-    %input{ type: "text", id: "name", name: "name" }
+    %input{ type: "text", id: "name", name: "user[name]" }
 
   %div.field
     %label{ for: "username" } Username
-    %input{ type: "text", id: "username", name: "username" }
+    %input{ type: "text", id: "username", name: "user[username]" }
 
   %div.field
     %label{ for: "password" } Password
-    %input{ type: "text", id: "password", name: "password" }
+    %input{ type: "text", id: "password", name: "user[password]" }
 
   %div.field
     %label{ for: "superuser" } Superuser
-    %input{ type: "checkbox", id: "superuser", name: "superuser", value: "true" }
+    %input{ type: "checkbox", id: "superuser", name: "user[superuser]", value: "true" }
       
   %div.field
     %input{ type: "submit", value: "Create User" }

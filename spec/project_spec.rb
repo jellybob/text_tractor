@@ -50,4 +50,35 @@ describe Copycat::Projects do
       Copycat::Projects.get("test").should be_nil
     end
   end
+
+  describe "listing projects for a user" do
+    before(:each) do
+      Copycat::Projects.create(name: "Assigned Project", users: [ "example" ])
+      Copycat::Projects.create(name: "Unassigned Project")
+    end
+    
+    let(:user) do
+      { "username" => "example",
+        "superuser" => false }
+    end
+    
+    specify { Copycat::Projects.should respond_to(:for_user) }
+    
+    it "returns all projects if the user is a superuser" do
+      user["superuser"] = true
+      projects = Copycat::Projects.for_user(user)
+      
+      projects.should have(2).projects
+      projects.first["name"].should eq "Assigned Project"
+      projects.last["name"].should eq "Unassigned Project"
+    end
+
+    it "returns only projects the user has been added to for standard users" do
+      user["superuser"] = false
+      projects = Copycat::Projects.for_user(user)
+      
+      projects.should have(1).project
+      projects.first["name"].should eq "Assigned Project"
+    end
+  end
 end

@@ -8,7 +8,15 @@ describe "project management" do
     end
     
     pending "it allows access to the project list"
-    pending "it lists all projects"
+
+    it "it lists all projects" do
+      Copycat::Projects.create(name: "Test Project")
+      Copycat::Projects.create(name: "User Specified Project", users: [ "jim@example.org" ])
+
+      visit '/'
+      page.should have_content "Test Project"
+      page.should have_content "User Specified Project"
+    end
     
     it "it allows a new project to be created" do
       visit '/'

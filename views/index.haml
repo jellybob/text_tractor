@@ -1,5 +1,11 @@
 %h1 Projects
 
 %section#projects
-  %p It doesn't look like you've got any projects yet.
+  - if @projects.size > 0
+    %ul
+      - @projects.each do |project|
+        %li
+          %a{ href: "/projects/#{project["api_key"]}" }= project["name"]
+  - else
+    %p It doesn't look like you've got any projects yet.
   %a#new_project{ href: "/projects/new" } Create a Project

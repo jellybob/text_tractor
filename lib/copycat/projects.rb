@@ -11,11 +11,8 @@ module Copycat
     end
 
     def self.create(attributes = {})
-      attributes = attributes.inject({}) do |hash, item|
-        hash[item[0].to_s] = item[1] # Convert symbolized keys to strings.
-        hash
-      end
-
+      attributes = Copycat.stringify_keys(attributes)
+      
       if redis.sismember "project_names", attributes["name"]
         raise DuplicateProjectName.new
       else
@@ -41,6 +38,17 @@ module Copycat
     def self.get(api_key)
       json = redis.get("projects:#{api_key}")
       return JSON.parse(json) if json
+    end
+
+    def self.for_user(user)
+      projects = []
+      redis.smembers("projects").each do |p|
+        if user["superuser"] || redis.sismember("project_users:#{p}", user["username"])
+          projects << get(p)
+        end
+      end
+
+      projects.sort { |a, b| a["name"] <=> b["name"] }
     end
   end
 end
