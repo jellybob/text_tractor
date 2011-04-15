@@ -1,10 +1,3 @@
-require 'sinatra'
-require 'json'
-require 'redis'
-require 'redis-namespace'
-require 'digest/md5'
-require 'rack/etag'
-
 module Copycat
   class ApiServer < Copycat::Base
     # Used to defer returning a list of blurbs so that the ETag can be checked first.
@@ -54,7 +47,7 @@ module Copycat
     end
     
     def project(api_key)
-      JSON.parse(redis.get("projects:#{api_key}"))
+      Copycat::Projects.get(api_key)
     end
   
     def project_exists?(api_key)
