@@ -1,14 +1,14 @@
 require "rubygems"
 require "bundler/setup"
 require "uri"
-require "copycat"
+require "text_tractor"
 
-Copycat.config do |c|
+TextTractor.config do |c|
   # You should change these.
   c.default_username = "admin"
   c.default_password = "password"
   
-  c.hostname = "copycat.example.org"
+  c.hostname = "text_tractor.example.org"
   c.port = 443
   c.ssl = true
    
@@ -16,4 +16,4 @@ Copycat.config do |c|
   c.redis = ENV["REDISTOGO_URL"] if ENV.key? "REDISTOGO_URL"
 end
 
-run Copycat.application
+run TextTractor.application

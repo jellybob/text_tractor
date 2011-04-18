@@ -1,16 +1,16 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
-require "copycat/version"
+require "text_tractor/version"
 
 Gem::Specification.new do |s|
-  s.name        = "Copycat"
-  s.version     = Copycat::VERSION
+  s.name        = "TextTractor"
+  s.version     = TextTractor::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Jon Wood"]
   s.email       = ["jon@blankpad.net"]
-  s.homepage    = "https://github.com/jellybob/copycat"
+  s.homepage    = "https://github.com/jellybob/text_tractor"
   s.summary     = %q{An implementation of the server side for a certain web service.}
-  s.description = %q{Copycat provides a web interface so that your clients can edit their copy, while you get on with more interesting things.}
+  s.description = %q{TextTractor provides a web interface so that your clients can edit their copy, while you get on with more interesting things.}
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec}/*`.split("\n")

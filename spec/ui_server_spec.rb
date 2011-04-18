@@ -2,5 +2,5 @@ require 'spec_helper'
 require 'json'
 
 describe "the UI server" do
-  subject { Copycat::UiServer.new }
+  subject { TextTractor::UiServer.new }
 end

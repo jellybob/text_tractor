@@ -1,8 +1,8 @@
 require 'uri'
 
-module Copycat
+module TextTractor
   def self.configuration
-    @configuration ||= Copycat::Config.new
+    @configuration ||= TextTractor::Config.new
   end
 
   def self.config

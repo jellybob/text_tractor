@@ -2,8 +2,8 @@ require 'haml'
 require 'sass'
 require 'digest/md5'
 
-module Copycat
-  class UiServer < Copycat::Base
+module TextTractor
+  class UiServer < TextTractor::Base
     helpers do 
       def current_user
         Users.get(env["REMOTE_USER"])
@@ -15,14 +15,14 @@ module Copycat
     end
     
     use Rack::Auth::Basic do |username, password|
-      unless Users.exists?(Copycat.configuration.default_username)
-        Users.create(username: Copycat.configuration.default_username, password: Copycat.configuration.default_password, name: "Default User", superuser: true) 
+      unless Users.exists?(TextTractor.configuration.default_username)
+        Users.create(username: TextTractor.configuration.default_username, password: TextTractor.configuration.default_password, name: "Default User", superuser: true) 
       end
 
       Users.authenticate(username, password)
     end
     
-    set :environment, Copycat.configuration.environment
+    set :environment, TextTractor.configuration.environment
     
     set :public, File.expand_path("../../../assets", __FILE__)
     set :views, File.expand_path("../../../views", __FILE__)

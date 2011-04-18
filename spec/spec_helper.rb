@@ -1,12 +1,12 @@
 require 'rspec'
 require 'rack/test'
 require 'capybara/rspec'
-require 'copycat'
+require 'text_tractor'
 require 'redis'
 
-Copycat.config do |c|
+TextTractor.config do |c|
   c.redis = {
-    ns: "copycat:test",
+    ns: "text_tractor:test",
     db: 8
   }
 
@@ -25,24 +25,24 @@ RSpec.configure do |conf|
   end
   
   def redis
-    Copycat.redis
+    TextTractor.redis
   end
 
   def app
-    Copycat.application
+    TextTractor.application
   end
   Capybara.app = app
   
   def login(username = nil, password = nil)
-    username ||= Copycat.configuration.default_username
-    password ||= Copycat.configuration.default_password
+    username ||= TextTractor.configuration.default_username
+    password ||= TextTractor.configuration.default_password
     
     basic_authorize username, password
     Capybara.current_session.driver.basic_authorize username, password
   end
   
   def create_user(username, password, superuser = false)
-    Copycat::Users.create(name: username, username: username, password: password, superuser: superuser)
+    TextTractor::Users.create(name: username, username: username, password: password, superuser: superuser)
   end
 
   def create_superuser(username, password)

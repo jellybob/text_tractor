@@ -1,12 +1,12 @@
 require 'spec_helper'
 
-describe Copycat::Config do
+describe TextTractor::Config do
   describe "setting the application configuration" do
-    specify { Copycat.should respond_to(:config) }
+    specify { TextTractor.should respond_to(:config) }
     
-    it "yields an instance of Copycat::Config" do
-      Copycat.config.should do |config|
-        config.should be_a Copycat::Config
+    it "yields an instance of TextTractor::Config" do
+      TextTractor.config.should do |config|
+        config.should be_a TextTractor::Config
       end
     end
   end

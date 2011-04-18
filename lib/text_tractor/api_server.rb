@@ -1,5 +1,5 @@
-module Copycat
-  class ApiServer < Copycat::Base
+module TextTractor
+  class ApiServer < TextTractor::Base
     # Used to defer returning a list of blurbs so that the ETag can be checked first.
     class BlurbList
       attr_reader :redis, :api_key, :state
@@ -15,11 +15,11 @@ module Copycat
       end
       
       def blurbs
-        Copycat::Projects.blurbs(state, api_key)
+        TextTractor::Projects.blurbs(state, api_key)
       end
       
       def update(blurbs, options = {})
-        Copycat::Projects.update_blurbs(state, api_key, JSON.parse(blurbs), options)
+        TextTractor::Projects.update_blurbs(state, api_key, JSON.parse(blurbs), options)
       end
       
       def each

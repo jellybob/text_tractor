@@ -3,7 +3,7 @@ require 'json'
 
 describe "the API server" do
   def app
-    Copycat::ApiServer
+    TextTractor::ApiServer
   end
 
   describe "creating and listing projects" do
@@ -69,7 +69,7 @@ describe "the API server" do
   describe "returning the draft blurbs for a project" do
     context "when the project exists" do
       before(:each) do
-        Copycat::Projects.create name: "Test Project", api_key: "test"
+        TextTractor::Projects.create name: "Test Project", api_key: "test"
 
         # That's the format we get it in from copycopter_client
         post "/test/draft_blurbs", {
@@ -98,7 +98,7 @@ describe "the API server" do
       
       it "does not load the translation list if the ETag matches" do
         blurbs = stub(:bytesize => 0, :etag => "foo")
-        Copycat::ApiServer::BlurbList.should_receive(:new).and_return(blurbs)
+        TextTractor::ApiServer::BlurbList.should_receive(:new).and_return(blurbs)
         blurbs.should_not_receive(:each)
         
         header "If-None-Match", "foo"
@@ -128,7 +128,7 @@ describe "the API server" do
   describe "returning the published blurbs for a project" do
     context "when the project exists" do
       before(:each) do
-        Copycat::Projects.create name: "Test Project", api_key: "test"
+        TextTractor::Projects.create name: "Test Project", api_key: "test"
 
         post "/test/published_blurbs", {
           "application.home.title" => "Home Page",
@@ -156,7 +156,7 @@ describe "the API server" do
       
       it "does not load the translation list if the ETag matches" do
         blurbs = stub(:bytesize => 0, :etag => "foo")
-        Copycat::ApiServer::BlurbList.should_receive(:new).and_return(blurbs)
+        TextTractor::ApiServer::BlurbList.should_receive(:new).and_return(blurbs)
         blurbs.should_not_receive(:each)
         
         header "If-None-Match", "foo"

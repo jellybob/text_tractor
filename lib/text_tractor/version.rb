@@ -1,3 +1,3 @@
-module Copycat
+module TextTractor
   VERSION = "0.0.1"
 end

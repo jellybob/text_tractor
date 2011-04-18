@@ -5,7 +5,7 @@ require 'redis-namespace'
 require 'digest/md5'
 require 'rack/etag'
 
-module Copycat
+module TextTractor
   class Base < Sinatra::Application
     use Rack::ETag
     use Rack::ConditionalGet
@@ -15,7 +15,7 @@ module Copycat
     end
 
     def redis
-      Copycat.redis
+      TextTractor.redis
     end
 
     def not_authorised

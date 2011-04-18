@@ -8,8 +8,8 @@ describe "project management" do
     end
     
     it "it lists all projects" do
-      Copycat::Projects.create(name: "Test Project")
-      Copycat::Projects.create(name: "User Specified Project", users: [ "jim@example.org" ])
+      TextTractor::Projects.create(name: "Test Project")
+      TextTractor::Projects.create(name: "User Specified Project", users: [ "jim@example.org" ])
 
       visit '/'
       page.should have_content "Test Project"
@@ -30,14 +30,14 @@ describe "project management" do
     end
 
     it "allows access to a project the user has been explicitly added to" do
-      project = Copycat::Projects.create(name: "User Specified Project", users: [ "jim@example.org" ])
+      project = TextTractor::Projects.create(name: "User Specified Project", users: [ "jim@example.org" ])
       
       get "/projects/#{project["api_key"]}"
       last_response.status.should eq 200
     end
 
     it "allows access to a project the user has not been added to" do
-      project = Copycat::Projects.create(name: "User Specified Project")
+      project = TextTractor::Projects.create(name: "User Specified Project")
       
       get "/projects/#{project["api_key"]}"
       last_response.status.should eq 200
@@ -46,8 +46,8 @@ describe "project management" do
 
   context "as a normal user" do
     before(:each) do
-      Copycat::Projects.create(name: "Test Project", api_key: "test")
-      Copycat::Projects.create(name: "User Specified Project", api_key: "user", users: [ "bob@example.org" ])
+      TextTractor::Projects.create(name: "Test Project", api_key: "test")
+      TextTractor::Projects.create(name: "User Specified Project", api_key: "user", users: [ "bob@example.org" ])
       
       create_user "bob@example.org", "password"
       login "bob@example.org", "password"

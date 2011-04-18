@@ -7,8 +7,8 @@ describe "authentication", :type => :request do
   end
   
   it "allows access if logging in with the default credentials" do
-    Copycat.configuration.default_username = "admin"
-    Copycat.configuration.default_password = "password"
+    TextTractor.configuration.default_username = "admin"
+    TextTractor.configuration.default_password = "password"
     
     basic_authorize "admin", "password"
     

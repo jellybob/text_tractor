@@ -1,9 +1,9 @@
-module Copycat
+module TextTractor
   module Projects
     class DuplicateProjectName < Exception; end
     
     def self.redis
-      Copycat.redis
+      TextTractor.redis
     end
     
     def self.random_key
@@ -15,7 +15,7 @@ module Copycat
     end
     
     def self.create(attributes = {})
-      attributes = Copycat.stringify_keys(attributes)
+      attributes = TextTractor.stringify_keys(attributes)
       
       if redis.sismember "project_names", attributes["name"]
         raise DuplicateProjectName.new
@@ -116,9 +116,9 @@ module Copycat
       <<EOF
       Copycopter::Client.configure do |config|
   config.api_key = "#{project["api_key"]}"
-  config.host    = "#{Copycat.configuration.hostname}"
-  config.port    = #{Copycat.configuration.port}
-  config.secure  = #{Copycat.configuration.ssl ? "true" : "false"}
+  config.host    = "#{TextTractor.configuration.hostname}"
+  config.port    = #{TextTractor.configuration.port}
+  config.secure  = #{TextTractor.configuration.ssl ? "true" : "false"}
 end
 EOF
     end

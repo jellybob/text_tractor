@@ -1,11 +1,11 @@
 require 'digest/md5'
 
-module Copycat
+module TextTractor
   module Users
     class DuplicateUserError < Exception; end
     
     def self.redis
-      Copycat.redis
+      TextTractor.redis
     end
     
     def self.all
@@ -21,7 +21,7 @@ module Copycat
     end
     
     def self.create(attributes = {})
-      attributes = Copycat.stringify_keys(attributes)
+      attributes = TextTractor.stringify_keys(attributes)
       
       password = attributes.delete("password")
       attributes["superuser"] ||= false
@@ -43,7 +43,7 @@ module Copycat
 
     private
       def self.hash_user(username, password)
-        Digest::MD5.hexdigest("#{username}.#{password}.#{Copycat.configuration.salt}")
+        Digest::MD5.hexdigest("#{username}.#{password}.#{TextTractor.configuration.salt}")
       end
   end
 end
