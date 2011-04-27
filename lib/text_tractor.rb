@@ -12,13 +12,13 @@ module TextTractor
     ApiServer.set :environment, config.environment
     
     Rack::URLMap.new \
-      "/" => TextTractor::UiServer.new,
-      "/api/v2/projects" => TextTractor::ApiServer.new
+      "/" => UiServer.new,
+      "/api/v2/projects" => ApiServer.new
   end
 
   def self.redis
-    @redis ||= Redis.new(TextTractor.configuration.redis)
-    @namespaced_redis ||= Redis::Namespace.new(TextTractor.configuration.redis[:ns], :redis => @redis)
+    @redis ||= Redis.new(configuration.redis)
+    @namespaced_redis ||= Redis::Namespace.new(configuration.redis[:ns], :redis => @redis)
   end
 
   def self.stringify_keys(hash)
