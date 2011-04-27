@@ -1,46 +1,149 @@
 require 'spec_helper'
 
+describe TextTractor::Project do
+  it { should_not be_nil }
+  it { should respond_to :name }
+  it { should respond_to :api_key }
+  it { should respond_to :default_locale }
+  it { should respond_to :users }
+
+  it "defaults the api_key to a random key" do
+    TextTractor::Projects.stub(:random_key).and_return("4") # Chosen by fair dice roll.
+    subject.api_key.should == "4"
+  end
+
+  it "defaults the locale to 'en'" do
+    subject.default_locale.should == "en"
+  end
+
+  it "defaults the users to an empty array" do
+    subject.users.should == []
+  end
+
+  specify { should respond_to(:update_draft_blurbs) }
+  describe "updating the draft blurbs" do
+    before(:each) do
+      @project = TextTractor::Projects.create(name: "Test", api_key: "test")
+      @project.update_draft_blurbs(
+        "en.application.home.title" => "Home Page",
+        "en.application.home.body" => "This is the home page.",
+      )
+    end
+    
+    it "saves the new translations" do
+      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.title")).should == {
+        "en" => "Home Page"
+      }
+
+      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.body")).should == {
+        "en" => "This is the home page."
+      }
+    end
+    
+    it "correctly retains quotes" do
+      @project.update_draft_blurbs(
+        "en.application.home.quoted" => %q{"I would like to test quoting." said Jon.}
+      )
+            
+      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.quoted")).should == {
+        "en" => %q{"I would like to test quoting." said Jon.}
+      }
+    end
+
+    it "generates a new ETag if the translations have changed" do
+      redis.get("projects:test:draft_blurbs_etag").should_not be_nil
+    end
+
+    it "does not replace the content of existing translations by default" do
+      @project.update_draft_blurbs(
+        "en.application.home.title" => "A different title"
+      )
+
+      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.title")).should == {
+        "en" => "Home Page" 
+      }
+    end
+
+    it "replaces the content of existing translations if :overwrite is set" do
+      @project.update_draft_blurbs({
+        "en.application.home.title" => "A different title"
+      }, :overwrite => true)
+      
+      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.title")).should == {
+        "en" => "A different title" 
+      }
+    end
+
+    it "does not generate a new ETag if the translations did not change" do
+      previous_etag = redis.get("projects:test:draft_blurbs_etag")
+      
+      @project.update_draft_blurbs(
+        "en.application.home.title" => "A different title"
+      )
+      redis.get("projects:test:draft_blurbs_etag").should == previous_etag
+    end
+  end
+  
+  specify { should respond_to(:draft_blurbs) }
+  describe "getting the draft blurbs for a project" do
+    context "when the project exists" do
+      before(:each) do
+        @project = TextTractor::Projects.create(name: "Test Project", api_key: "test")
+        @project.update_draft_blurbs({
+          "en.application.home.title" => "Home Page",
+          "en.application.home.body" => "This is the home page."
+        })
+      end
+
+      subject { @project.draft_blurbs }
+      
+      it "returns all the translations" do
+        subject.should == {
+          "en.application.home.title" => "Home Page",
+          "en.application.home.body" => "This is the home page."
+        }
+      end
+    end
+  end
+end
+
 describe TextTractor::Projects do
   specify { TextTractor::Projects.should respond_to(:create) }
    
   describe "creating a new project" do
-    it "on success it creates the project, and returns the details provided" do
-      result = TextTractor::Projects.create name: "Test Project", api_key: "49032804328090f8sd0fas0jds"
-      result["name"].should == "Test Project"
-      result["api_key"].should == "49032804328090f8sd0fas0jds"
+    context "when succesful" do
+      before(:each) { @project = TextTractor::Projects.create name: "Test Project", api_key: "49032804328090f8sd0fas0jds", users: [ "jon@blankpad.net", "bob@example.org" ] }
+      subject { @project }
+       
+      it "returns the details as a project instance" do
+        subject.should be_instance_of TextTractor::Project
 
-      JSON.parse(TextTractor.redis.get("projects:49032804328090f8sd0fas0jds")).should == result
-      TextTractor.redis.sismember("project_names", "Test Project").should be_true
-      TextTractor.redis.sismember("projects", "49032804328090f8sd0fas0jds").should be_true
-    end
+        subject.name.should == "Test Project"
+        subject.api_key.should == "49032804328090f8sd0fas0jds"
+      end
+      
+      it "saves the projects details for later use" do
+        TextTractor.redis.get("projects:49032804328090f8sd0fas0jds").should == subject.to_json
+      end
+      
+      it "adds the API key to the project index" do
+        TextTractor.redis.sismember("projects", "49032804328090f8sd0fas0jds").should be_true
+      end
 
-    it "generates a random API key if one hasn't been specified" do
-      result = TextTractor::Projects.create name: "Test Project"
-      result.should have_key("api_key")
-      result["api_key"].should_not be_nil
+      it "places the project name in a set for quick reference" do
+        TextTractor.redis.sismember("project_names", "Test Project").should be_true
+      end
+
+      it "assigns any provided users to the project" do
+        TextTractor.redis.sismember("project_users:49032804328090f8sd0fas0jds", "bob@example.org").should be_true
+        TextTractor.redis.sismember("project_users:49032804328090f8sd0fas0jds", "jon@blankpad.net").should be_true
+      end
     end
 
     it "rejects a project with the same name as an existing project" do
       TextTractor::Projects.create name: "Test Project"
       
       lambda { TextTractor::Projects.create name: "Test Project" }.should raise_error(TextTractor::Projects::DuplicateProjectName)
-    end
-
-    it "assigns any provided users to the project" do
-      TextTractor::Projects.create name: "Test Project", api_key: "test", users: [ "jon@blankpad.net", "bob@example.org" ]
-
-      TextTractor.redis.sismember("project_users:test", "bob@example.org").should be_true
-      TextTractor.redis.sismember("project_users:test", "jon@blankpad.net").should be_true
-    end
-
-    it "defaults the locale to 'en' if no other option was specified" do
-      project = TextTractor::Projects.create name: "Test Project"
-      project["default_locale"].should == "en"
-    end
-
-    it "sets the locale to the specified option if one was provided" do
-      project = TextTractor::Projects.create name: "Test Project", default_locale: "cy"
-      project["default_locale"].should == "cy"
     end
   end
 
@@ -49,9 +152,9 @@ describe TextTractor::Projects do
       TextTractor::Projects.create name: "Test Project", api_key: "test"
 
       project = TextTractor::Projects.get("test")
-      project.should_not be_nil
-      project["name"].should == "Test Project"
-      project["api_key"].should == "test"
+      project.should be_instance_of TextTractor::Project
+      project.name.should == "Test Project"
+      project.api_key.should == "test"
     end
 
     it "returns nil if the project did not exist" do
@@ -109,97 +212,4 @@ describe TextTractor::Projects do
     end
   end
 
-  specify { TextTractor::Projects.should respond_to(:update_draft_blurbs) }
-  describe "updating the draft blurbs" do
-    before(:each) do
-      TextTractor::Projects.create(name: "Test", api_key: "test")
-      TextTractor::Projects.update_draft_blurbs "test", {
-        "en.application.home.title" => "Home Page",
-        "en.application.home.body" => "This is the home page.",
-      }
-    end
-    
-    it "saves the new translations" do
-      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.title")).should == {
-        "en" => "Home Page"
-      }
-
-      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.body")).should == {
-        "en" => "This is the home page."
-      }
-    end
-    
-    it "correctly retains quotes" do
-      TextTractor::Projects.update_draft_blurbs "test", {
-        "en.application.home.quoted" => %q{"I would like to test quoting." said Jon.}
-      }
-            
-      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.quoted")).should == {
-        "en" => %q{"I would like to test quoting." said Jon.}
-      }
-    end
-
-    it "generates a new ETag if the translations have changed" do
-      redis.get("projects:test:draft_blurbs_etag").should_not be_nil
-    end
-
-    it "does not replace the content of existing translations by default" do
-      TextTractor::Projects.update_draft_blurbs "test", {
-        "en.application.home.title" => "A different title"
-      }
-
-      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.title")).should == {
-        "en" => "Home Page" 
-      }
-    end
-
-    it "replaces the content of existing translations if :overwrite is set" do
-      TextTractor::Projects.update_draft_blurbs "test", {
-        "en.application.home.title" => "A different title"
-      }, :overwrite => true
-      
-      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.title")).should == {
-        "en" => "A different title" 
-      }
-    end
-
-    it "does not generate a new ETag if the translations did not change" do
-      previous_etag = redis.get("projects:test:draft_blurbs_etag")
-      
-      TextTractor::Projects.update_draft_blurbs "test", {
-        "en.application.home.title" => "A different title"
-      }
-      redis.get("projects:test:draft_blurbs_etag").should == previous_etag
-    end
-  end
-
-  specify { TextTractor::Projects.should respond_to(:draft_blurbs) }
-  describe "getting the draft blurbs for a project" do
-    context "when the project exists" do
-      before(:each) do
-        TextTractor::Projects.create(name: "Test Project", api_key: "test")
-
-        # That's the format we get it in from copycopter_client
-        TextTractor::Projects.update_draft_blurbs("test", {
-          "en.application.home.title" => "Home Page",
-          "en.application.home.body" => "This is the home page."
-        })
-      end
-
-      subject { TextTractor::Projects.draft_blurbs("test") }
-      
-      it "returns all the translations" do
-        subject.should == {
-          "en.application.home.title" => "Home Page",
-          "en.application.home.body" => "This is the home page."
-        }
-      end
-    end
-
-    context "when the project does not exist" do
-      it "returns nil" do
-        TextTractor::Projects.draft_blurbs("foo").should be_nil
-      end
-    end
-  end
 end

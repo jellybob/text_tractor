@@ -75,10 +75,11 @@ module TextTractor
     end
     
     post '/projects/:api_key/*' do |api_key, path|
+      @project = Projects.get(api_key)
       @key = path.gsub("/", ".")
       @value = params[:blurb]
       
-      Projects.update_draft_blurbs(api_key, { @key => @value }, { :overwrite => true })
+      @project.update_draft_blurbs({ @key => @value }, { :overwrite => true })
       
       if pjax?
         haml :"blurbs/value", :layout => false
@@ -91,7 +92,7 @@ module TextTractor
       return not_authorised unless Projects.authorised?(current_user, api_key)
 
       @project = Projects.get(api_key)
-      @blurbs = Projects.draft_blurbs(api_key)
+      @blurbs = @project.draft_blurbs
       
       if @blurbs.size > 0
         render_haml :"projects/show"

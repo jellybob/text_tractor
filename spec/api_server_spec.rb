@@ -11,20 +11,20 @@ describe "the API server" do
       post "/", :name => "Test Project", :api_key => "49032804328090f8sd0fas0jds"
 
       last_response.should be_ok
-      JSON.parse(last_response.body).should == {
-        "name" => "Test Project",
-        "api_key" => "49032804328090f8sd0fas0jds",
-        "default_locale" => "en"
-      }
+      last_response.body.should == TextTractor::Project.new(
+        name: "Test Project",
+        api_key: "49032804328090f8sd0fas0jds",
+        default_locale: "en"
+      ).to_json
     end
 
     it "includes a newly created project in the projects list" do
       post "/", :name => "Test Project", :api_key => "bob"
       get "/"
 
-      JSON.parse(last_response.body).should == [
-        { "name" => "Test Project", "api_key" => "bob", "default_locale" => "en" }
-      ]
+      last_response.body.should == [
+        { name: "Test Project", api_key: "bob", default_locale: "en", users: [] }
+      ].to_json
     end
 
     it "rejects a project with the same name as an existing project" do

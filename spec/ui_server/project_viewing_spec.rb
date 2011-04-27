@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe "working with a project", :type => :request do
   before(:each) do
-    TextTractor::Projects.create(name: "Test Project", api_key: "test")
+    @project = TextTractor::Projects.create(name: "Test Project", api_key: "test")
 
     login
   end
@@ -20,8 +20,8 @@ describe "working with a project", :type => :request do
 
   context "when the project has had some blurbs added to it" do
     before(:each) do
-      TextTractor::Projects.update_draft_blurbs("test", {
-        "application.home.title" => "Home Page"
+      @project.update_draft_blurbs({
+        "en.application.home.title" => "Home Page"
       })
     end
 
@@ -32,9 +32,9 @@ describe "working with a project", :type => :request do
     end
 
     it "updates the blurb content on a POST" do
-      post "/projects/test/application/home/title", :blurb => "Test"
+      post "/projects/test/en/application/home/title", :blurb => "Test"
 
-      TextTractor::Projects.draft_blurbs("test")["application.home.title"].should == "Test"
+      @project.draft_blurbs["en.application.home.title"].should == "Test"
     end
   end
 end

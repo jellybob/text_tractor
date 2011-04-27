@@ -2,12 +2,13 @@ module TextTractor
   class ApiServer < TextTractor::Base
     # Used to defer returning a list of blurbs so that the ETag can be checked first.
     class BlurbList
-      attr_reader :redis, :api_key, :state
+      attr_reader :redis, :api_key, :state, :project
       
       def initialize(redis, api_key, state)
         @redis = redis
         @api_key = api_key
         @state = state
+        @project = Projects.get(api_key)
       end
       
       def etag
@@ -15,11 +16,11 @@ module TextTractor
       end
       
       def blurbs
-        TextTractor::Projects.blurbs(state, api_key)
+        project.blurbs(state)
       end
       
       def update(blurbs, options = {})
-        TextTractor::Projects.update_blurbs(state, api_key, JSON.parse(blurbs), options)
+        project.update_blurbs(state, JSON.parse(blurbs), options)
       end
       
       def each
