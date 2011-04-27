@@ -38,18 +38,19 @@ describe "the API server" do
       }
     end
   end
-
+  
+  let(:example_phrases) do
+    {
+      "en.application.home.title" => "Home Page",
+      "en.application.home.body" => "This is the home page."
+    }
+  end
+  
   describe "registering draft blurbs for a project" do
     context "when the project exists" do
       before(:each) do
         post "/", :name => "Test Project", :api_key => "test"
-        
-        # That's the format we get it in from copycopter_client
-        post "/test/draft_blurbs", {
-          "application.home.title" => "Home Page",
-          "application.home.body" => "This is the home page.",
-          "application.home.quoted" => "\"I would like to test quoting.\" said Jon."
-        }.to_json
+        post "/test/draft_blurbs", example_phrases.to_json
       end
 
       it "shows the update was OK" do
@@ -73,20 +74,14 @@ describe "the API server" do
         TextTractor::Projects.create name: "Test Project", api_key: "test"
 
         # That's the format we get it in from copycopter_client
-        post "/test/draft_blurbs", {
-          "application.home.title" => "Home Page",
-          "application.home.body" => "This is the home page."
-        }.to_json
+        post "/test/draft_blurbs", example_phrases.to_json
       end
 
       it "returns all the translations if the ETag does not match" do
         get "/test/draft_blurbs"
         
         last_response.should be_ok
-        JSON.parse(last_response.body).should == {
-          "application.home.title" => "Home Page",
-          "application.home.body" => "This is the home page."
-        }
+        JSON.parse(last_response.body).should == example_phrases
       end
       
       it "returns a status code of 302, with an empty body, if the ETag does match" do
@@ -131,20 +126,14 @@ describe "the API server" do
       before(:each) do
         TextTractor::Projects.create name: "Test Project", api_key: "test"
 
-        post "/test/published_blurbs", {
-          "application.home.title" => "Home Page",
-          "application.home.body" => "This is the home page."
-        }.to_json
+        post "/test/published_blurbs", example_phrases.to_json
       end
 
       it "returns all the translations if the ETag does not match" do
         get "/test/published_blurbs"
         
         last_response.should be_ok
-        JSON.parse(last_response.body).should == {
-          "application.home.title" => "Home Page",
-          "application.home.body" => "This is the home page."
-        }
+        JSON.parse(last_response.body).should == example_phrases
       end
       
       it "returns a status code of 302, with an empty body, if the ETag does match" do
@@ -188,9 +177,7 @@ describe "the API server" do
     context "when the project does exist" do
       before(:each) do
         post "/", :name => "Test Project", :api_key => "test"
-        post "/test/draft_blurbs", {
-          "application.home.title" => "A Title"
-        }.to_json
+        post "/test/draft_blurbs", example_phrases.to_json
       end
 
       it "has a 200 response code" do
@@ -204,9 +191,7 @@ describe "the API server" do
 
         post "/test/deploys"
         get "/test/published_blurbs"
-        JSON.parse(last_response.body).should == {
-          "application.home.title" => "A Title"
-        }
+        JSON.parse(last_response.body).should == example_phrases
       end
     end
 
