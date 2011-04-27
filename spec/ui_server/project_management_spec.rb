@@ -23,10 +23,16 @@ describe "project management" do
       click_link "Create a Project"
 
       fill_in "Project Name", :with => "Example Project"
+      fill_in "Default Locale", :with => "cy" # Hell yeah, we're doing this site in Welsh.
       check "jim@example.org"
       click_button "Create Project"
 
-      page.should have_content "Example Project"
+      page.should have_content "Example Project (cy)"
+    end
+    
+    it "defaults the locale to 'en'" do
+      visit '/projects/new'
+      find_field("Default Locale").value.should == "en"
     end
 
     it "allows access to a project the user has been explicitly added to" do

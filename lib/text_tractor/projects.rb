@@ -21,6 +21,7 @@ module TextTractor
         raise DuplicateProjectName.new
       else
         attributes["api_key"] ||= random_key
+        attributes["default_locale"] ||= "en"
         
         redis.set "projects:#{attributes["api_key"]}", attributes.to_json
         redis.sadd "projects", attributes["api_key"]

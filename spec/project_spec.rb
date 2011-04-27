@@ -6,10 +6,8 @@ describe TextTractor::Projects do
   describe "creating a new project" do
     it "on success it creates the project, and returns the details provided" do
       result = TextTractor::Projects.create name: "Test Project", api_key: "49032804328090f8sd0fas0jds"
-      result.should == {
-        "name" => "Test Project",
-        "api_key" => "49032804328090f8sd0fas0jds"
-      }
+      result["name"].should == "Test Project"
+      result["api_key"].should == "49032804328090f8sd0fas0jds"
 
       JSON.parse(TextTractor.redis.get("projects:49032804328090f8sd0fas0jds")).should == result
       TextTractor.redis.sismember("project_names", "Test Project").should be_true
@@ -33,6 +31,16 @@ describe TextTractor::Projects do
 
       TextTractor.redis.sismember("project_users:test", "bob@example.org").should be_true
       TextTractor.redis.sismember("project_users:test", "jon@blankpad.net").should be_true
+    end
+
+    it "defaults the locale to 'en' if no other option was specified" do
+      project = TextTractor::Projects.create name: "Test Project"
+      project["default_locale"].should == "en"
+    end
+
+    it "sets the locale to the specified option if one was provided" do
+      project = TextTractor::Projects.create name: "Test Project", default_locale: "cy"
+      project["default_locale"].should == "cy"
     end
   end
 

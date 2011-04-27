@@ -13,7 +13,8 @@ describe "the API server" do
       last_response.should be_ok
       JSON.parse(last_response.body).should == {
         "name" => "Test Project",
-        "api_key" => "49032804328090f8sd0fas0jds"
+        "api_key" => "49032804328090f8sd0fas0jds",
+        "default_locale" => "en"
       }
     end
 
@@ -22,7 +23,7 @@ describe "the API server" do
       get "/"
 
       JSON.parse(last_response.body).should == [
-        { "name" => "Test Project", "api_key" => "bob" }
+        { "name" => "Test Project", "api_key" => "bob", "default_locale" => "en" }
       ]
     end
 

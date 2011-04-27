@@ -4,6 +4,10 @@
     %label{ for: "name" } Project Name
     %input{ type: "text", name: "project[name]", id: "name" }
   
+  %div.field
+    %label{ for: "default_locale" } Default Locale
+    %input{ type: "text", name: "project[default_locale]", id: "default_locale", value: "en" }
+
   %h2 Users
   %p Check the box next to each user who should be granted access to this project.
   - @users.each do |user|
