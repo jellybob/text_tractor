@@ -28,4 +28,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec"
   s.add_development_dependency "rack-test"
   s.add_development_dependency "capybara"
+
+  s.post_install_message "If you're updating from 0.0.1 then you need to run TextTractor::Projects.update_datastore. See https://github.com/jellybob/text_tractor/wiki/Updating-Your-Datastore for details."
 end

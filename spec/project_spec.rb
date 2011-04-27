@@ -211,5 +211,39 @@ describe TextTractor::Projects do
       TextTractor::Projects.authorised?({ "superuser" => false, "username" => "frank@example.org" }, "test")
     end
   end
+  
+  specify { TextTractor::Projects.should respond_to(:update_datastore) }
+  describe "migrating a data store to the current version" do
+    before(:each) do
+      TextTractor::Projects.create(name: "Test", api_key: "test")
+      
+      redis.set("projects:test:draft_blurbs:en.application.home.title", "Home page")
+      redis.sadd("projects:test:draft_blurb_keys", "en.application.home.title")
+      redis.set("projects:test:draft_blurbs:cy.application.home.title", "Hafan")
+      redis.sadd("projects:test:draft_blurb_keys", "cy.application.home.title")
+      redis.set "projects:test:draft_blurbs_etag", "old_etag"
 
+      TextTractor::Projects.update_datastore
+    end
+
+    it "updates the ETag" do
+      redis.get("projects:test:draft_blurbs_etag").should_not == "old_etag"
+    end
+
+    it "places all translations of a phrase under one key" do
+      redis.sismember("projects:test:draft_blurb_keys", "application.home.title").should be_true
+      redis.get("projects:test:draft_blurbs:application.home.title").should == {
+        "en" => "Home page",
+        "cy" => "Hafan"
+      }.to_json
+    end
+
+    it "removes the old blurbs" do
+      redis.sismember("projects:test:draft_blurb_keys", "en.application.home.title").should_not be_true
+      redis.sismember("projects:test:draft_blurb_keys", "cy.application.home.title").should_not be_true
+
+      redis.get("projects:test:draft_blurbs:en.application.home.title").should be_nil
+      redis.get("projects:test:draft_blurbs:cy.application.home.title").should be_nil
+    end
+  end
 end

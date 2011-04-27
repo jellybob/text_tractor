@@ -159,5 +159,21 @@ EOF
     def self.authorised?(user, api_key)
       user["superuser"] || redis.sismember("project_users:#{api_key}", user["username"])
     end
+
+    def self.update_datastore
+      redis.smembers("projects").each do |api_key|
+        project = get(api_key)
+
+        redis.smembers("projects:#{api_key}:draft_blurb_keys").each do |blurb|
+          value = redis.get("projects:#{api_key}:draft_blurbs:#{blurb}")
+          locale, phrase = blurb.split(".", 2)
+          
+          project.update_blurb("draft", locale, phrase, value, true)
+          
+          redis.del("projects:#{api_key}:draft_blurbs:#{blurb}")
+          redis.srem("projects:#{api_key}:draft_blurb_keys", blurb)
+        end
+      end
+    end
   end
 end
