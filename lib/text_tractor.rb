@@ -8,6 +8,9 @@ require 'text_tractor/ui_server'
 
 module TextTractor
   def self.application
+    UiServer.set :environment, config.environment
+    ApiServer.set :environment, config.environment
+    
     Rack::URLMap.new \
       "/" => TextTractor::UiServer.new,
       "/api/v2/projects" => TextTractor::ApiServer.new
