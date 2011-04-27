@@ -50,7 +50,10 @@ module TextTractor
       
       blurbs = {}
       redis.smembers("projects:#{api_key}:#{state}_blurb_keys").each do |key|
-        blurbs[key] = redis.get "projects:#{api_key}:#{state}_blurbs:#{key}"
+        translations = JSON.parse(redis.get("projects:#{api_key}:#{state}_blurbs:#{key}"))
+        translations.each do |locale, value|
+          blurbs["#{locale}.#{key}"] = value
+        end
       end
 
       blurbs
@@ -65,29 +68,36 @@ module TextTractor
     end
     
     # Set the :overwrite option to true to force overwriting existing translations.
+    def self.update_blurb(state, api_key, locale, phrase, value, overwrite = false)
+      key = "projects:#{api_key}:#{state}_blurbs:#{phrase}"
+      written = false
+      
+      current_value = redis.sismember("projects:#{api_key}:#{state}_blurb_keys", phrase) ? JSON.parse(redis.get(key)) : {}
+      
+      if overwrite || !current_value.key?(locale)
+        current_value[locale] = value
+        write = true
+      end
+
+      if write
+        redis.sadd "projects:#{api_key}:#{state}_blurb_keys", phrase
+        redis.set key, current_value.to_json
+        redis.set "projects:#{api_key}:#{state}_blurbs_etag", random_key
+      end
+
+      write
+    end
+
     def self.update_blurbs(state, api_key, blurbs = {}, options = {})
       options[:overwrite] = false if options[:overwrite].nil?
       
       changed = false
       blurbs.each do |key, value|
-        full_key = "projects:#{api_key}:#{state}_blurbs:#{key}"
-        written = false
-       
-        # This isn't ideal, but using redis.send(method, key, value) doesn't seem to work.
-        if options[:overwrite]
-          redis.set(full_key, value)
-          written = true
-        else
-          written = redis.setnx(full_key, value)
-        end
-
-        if written
-          redis.sadd "projects:#{api_key}:#{state}_blurb_keys", key
-          changed = true
-        end
+        locale, phrase = key.split(".", 2)
+        
+        # TODO: Extract this... six arguments to a method is just too many!
+        update_blurb(state, api_key, locale, phrase, value, options[:overwrite])
       end
-      
-      redis.set "projects:#{api_key}:#{state}_blurbs_etag", random_key if changed
       
       true
     end

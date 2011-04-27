@@ -202,4 +202,23 @@ describe "the API server" do
       end
     end
   end
+
+  describe "registering multi-lingual blurbs" do
+    let(:example_phrases) do
+      {
+        "en.application.home.title" => "Home Page",
+        "cy.application.home.title" => "Hafan",
+        "en.application.home.body" => "This is the home page.",
+        "cy.application.home.body" => "Dyma hafan."
+      }
+    end
+
+    it "registers all the translations provided" do
+      post "/", :name => "Test Project", :api_key => "test"
+      post "/test/draft_blurbs", example_phrases.to_json
+      get "/test/draft_blurbs"
+      
+      JSON.parse(last_response.body).should == example_phrases
+    end
+  end
 end

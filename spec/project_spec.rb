@@ -114,19 +114,29 @@ describe TextTractor::Projects do
     before(:each) do
       TextTractor::Projects.create(name: "Test", api_key: "test")
       TextTractor::Projects.update_draft_blurbs "test", {
-        "application.home.title" => "Home Page",
-        "application.home.body" => "This is the home page.",
-        "application.home.quoted" => %q{"I would like to test quoting." said Jon.}
+        "en.application.home.title" => "Home Page",
+        "en.application.home.body" => "This is the home page.",
       }
     end
     
     it "saves the new translations" do
-      redis.get("projects:test:draft_blurbs:application.home.title").should eq "Home Page"
-      redis.get("projects:test:draft_blurbs:application.home.body").should eq "This is the home page."
+      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.title")).should == {
+        "en" => "Home Page"
+      }
+
+      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.body")).should == {
+        "en" => "This is the home page."
+      }
     end
     
     it "correctly retains quotes" do
-      redis.get("projects:test:draft_blurbs:application.home.quoted").should eq %q{"I would like to test quoting." said Jon.}
+      TextTractor::Projects.update_draft_blurbs "test", {
+        "en.application.home.quoted" => %q{"I would like to test quoting." said Jon.}
+      }
+            
+      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.quoted")).should == {
+        "en" => %q{"I would like to test quoting." said Jon.}
+      }
     end
 
     it "generates a new ETag if the translations have changed" do
@@ -135,25 +145,29 @@ describe TextTractor::Projects do
 
     it "does not replace the content of existing translations by default" do
       TextTractor::Projects.update_draft_blurbs "test", {
-        "application.home.title" => "A different title"
+        "en.application.home.title" => "A different title"
       }
 
-      redis.get("projects:test:draft_blurbs:application.home.title").should eq "Home Page"
+      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.title")).should == {
+        "en" => "Home Page" 
+      }
     end
 
     it "replaces the content of existing translations if :overwrite is set" do
       TextTractor::Projects.update_draft_blurbs "test", {
-        "application.home.title" => "A different title"
+        "en.application.home.title" => "A different title"
       }, :overwrite => true
       
-      redis.get("projects:test:draft_blurbs:application.home.title").should eq "A different title"
+      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.title")).should == {
+        "en" => "A different title" 
+      }
     end
 
     it "does not generate a new ETag if the translations did not change" do
       previous_etag = redis.get("projects:test:draft_blurbs_etag")
       
       TextTractor::Projects.update_draft_blurbs "test", {
-        "application.home.title" => "A different title"
+        "en.application.home.title" => "A different title"
       }
       redis.get("projects:test:draft_blurbs_etag").should == previous_etag
     end
@@ -167,8 +181,8 @@ describe TextTractor::Projects do
 
         # That's the format we get it in from copycopter_client
         TextTractor::Projects.update_draft_blurbs("test", {
-          "application.home.title" => "Home Page",
-          "application.home.body" => "This is the home page."
+          "en.application.home.title" => "Home Page",
+          "en.application.home.body" => "This is the home page."
         })
       end
 
@@ -176,8 +190,8 @@ describe TextTractor::Projects do
       
       it "returns all the translations" do
         subject.should == {
-          "application.home.title" => "Home Page",
-          "application.home.body" => "This is the home page."
+          "en.application.home.title" => "Home Page",
+          "en.application.home.body" => "This is the home page."
         }
       end
     end
