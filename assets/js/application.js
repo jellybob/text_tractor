@@ -1,7 +1,7 @@
 $(function () {
   $('a').pjax('#content')
 
-  $('dd p').live('click', function () {
+  $('dd p.translation').live('click', function () {
     $.pjax({
       url: document.location.href + "/" + $(this).parent().attr("data-key").replace(/\./g, "/"),
       container: $(this).parent()

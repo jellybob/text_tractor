@@ -8,6 +8,10 @@ module TextTractor
       end
     end
     
+    def redis
+      TextTractor.redis
+    end
+    
     def api_key
       @api_key ||= Projects.random_key
     end
@@ -90,6 +94,23 @@ module TextTractor
 
     def published_blurbs
       blurbs("published")
+    end
+    
+    def phrases(state)
+      phrases = {}
+      redis.smembers("projects:#{api_key}:#{state}_blurb_keys").each do |key|
+        phrases[key] = JSON.parse(redis.get("projects:#{api_key}:#{state}_blurbs:#{key}"))
+      end
+
+      phrases
+    end
+    
+    def draft_phrases
+      phrases("draft")
+    end
+
+    def published_phrases
+      phrases("published")
     end
 
     def configuration_block

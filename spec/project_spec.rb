@@ -105,6 +105,30 @@ describe TextTractor::Project do
       end
     end
   end
+
+  specify { should respond_to(:draft_phrases) }
+  describe "getting the phrase list for a project" do
+    before(:each) do
+      @project = TextTractor::Projects.create(name: "Test Project", api_key: "test")
+      @project.update_draft_blurbs({
+        "en.application.home.title" => "Home Page",
+        "cy.application.home.title" => "Dafan",
+        "en.application.home.body" => "This is the home page."
+      })
+    end
+
+    it "returns the list of phrases, in all known languages" do
+      @project.draft_phrases.should == {
+        "application.home.title" => {
+          "en" => "Home Page",
+          "cy" => "Dafan"
+        },
+        "application.home.body" => {
+          "en" => "This is the home page."
+        }
+      }
+    end
+  end
 end
 
 describe TextTractor::Projects do

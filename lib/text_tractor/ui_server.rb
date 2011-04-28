@@ -12,6 +12,10 @@ module TextTractor
       def pjax?
         env.key? "HTTP_X_PJAX"
       end
+
+      def projects
+        Projects.for_user(current_user).sort { |a, b| b.name <=> a.name }
+      end
     end
     
     use Rack::Auth::Basic do |username, password|
@@ -65,21 +69,27 @@ module TextTractor
       render_haml :"projects/new"
     end
     
-    get '/projects/:api_key/*' do |api_key, path|
+    get '/projects/:api_key/:locale/*' do |api_key, locale, path|
       @api_key = api_key
+      @locale = locale
       @path = path
       @key = path.gsub("/", ".")
-      @blurb = redis.get("projects:#{@api_key}:draft_blurbs:#{@key}")
+      encoded = JSON.parse(redis.get("projects:#{@api_key}:draft_blurbs:#{@key}"))
+      @blurb = encoded[locale] || ""
 
       render_haml :"blurbs/edit"
     end
     
-    post '/projects/:api_key/*' do |api_key, path|
+    post '/projects/:api_key/:locale/*' do |api_key, locale, path|
+      @api_key = api_key
+      @locale = locale
       @project = Projects.get(api_key)
-      @key = path.gsub("/", ".")
+      @phrase_key = path.gsub("/", ".")
+      @key = "#{locale}.#{@phrase_key}"
       @value = params[:blurb]
       
       @project.update_draft_blurbs({ @key => @value }, { :overwrite => true })
+      @phrase = JSON.parse(redis.get("projects:#{@api_key}:draft_blurbs:#{@phrase_key}"))
       
       if pjax?
         haml :"blurbs/value", :layout => false
@@ -87,18 +97,27 @@ module TextTractor
         redirect "/projects/#{api_key}"
       end
     end
-
-    get '/projects/:api_key' do |api_key|
+    
+    def phrase_list(api_key, locale = nil)
       return not_authorised unless Projects.authorised?(current_user, api_key)
-
-      @project = Projects.get(api_key)
-      @blurbs = @project.draft_blurbs
       
-      if @blurbs.size > 0
+      @project = Projects.get(api_key)
+      @locale = locale || @project.default_locale
+      @phrases = @project.draft_phrases
+      
+      if @phrases.size > 0
         render_haml :"projects/show"
       else
         render_haml :"projects/getting_started"
       end
+    end
+    
+    get '/projects/:api_key' do |api_key|
+      return phrase_list(api_key)
+    end
+    
+    get '/projects/:api_key/:locale' do |api_key, locale|
+      return phrase_list(api_key, locale)
     end
     
     post '/projects' do

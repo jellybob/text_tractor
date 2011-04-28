@@ -7,6 +7,7 @@ TextTractor.config do |c|
   # You should change these.
   c.default_username = "admin"
   c.default_password = "password"
+  c.environment = :development
   
   c.hostname = "text_tractor.example.org"
   c.port = 443

@@ -1,8 +1,13 @@
-%h1= "#{@project["name"]} (#{@project["default_locale"]})"
+%h1= "#{@project["name"]} (#{@locale})"
 %p Click on a phrase to edit it.
 
 %dl
-  - @blurbs.sort.each do |key, value|
-    %dt= key.split(".").reject { |part| part == "en" }.collect { |part| part.gsub("_", " ").capitalize }.join(" / ")
+  - @phrases.sort.each do |key, value|
+    %dt= key.split(".").collect { |part| part.gsub("_", " ").capitalize }.join(" / ")
     %dd{ "data-key" => key }
-      %p= value
+      - if value[@locale]
+        %p.translation= value[@locale]
+      - else
+        %p.translation.empty Click to add a translation
+      - if @locale != @project.default_locale
+        %p.original= value[@project.default_locale]
