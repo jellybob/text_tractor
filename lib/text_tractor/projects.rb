@@ -49,6 +49,7 @@ module TextTractor
 
       if write
         redis.sadd "projects:#{api_key}:#{state}_blurb_keys", phrase
+        redis.sadd "projects:#{api_key}:locales", locale
         redis.set key, current_value.to_json
         redis.set "projects:#{api_key}:#{state}_blurbs_etag", Projects.random_key
       end
@@ -112,7 +113,12 @@ module TextTractor
     def published_phrases
       phrases("published")
     end
-
+    
+    def locales
+      locales = redis.smembers("projects:#{api_key}:locales")
+      locales ? locales.sort : []
+    end
+    
     def configuration_block
       <<EOF
       Copycopter::Client.configure do |config|

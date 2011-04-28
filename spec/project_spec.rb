@@ -129,6 +129,22 @@ describe TextTractor::Project do
       }
     end
   end
+
+  specify { should respond_to(:locales) }
+  describe "getting the list of known locales" do
+    before(:each) do
+      @project = TextTractor::Projects.create(name: "Test Project", api_key: "test")
+      @project.update_draft_blurbs({
+        "en.application.home.title" => "Home Page",
+        "cy.application.home.title" => "Dafan",
+        "en.application.home.body" => "This is the home page."
+      })
+    end
+
+    it "returns the known locales" do
+      @project.locales.should == [ "cy", "en" ]
+    end
+  end
 end
 
 describe TextTractor::Projects do

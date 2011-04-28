@@ -1,4 +1,12 @@
 %h1= "#{@project["name"]} (#{@locale})"
+%ul#locales
+  - @project.locales.each do |locale|
+    %li
+      - if locale == @locale
+        = locale
+      - else
+        %a{ href: "/projects/#{@project.api_key}/#{locale}" }= locale
+
 %p Click on a phrase to edit it.
 
 %dl

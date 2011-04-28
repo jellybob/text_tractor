@@ -106,7 +106,24 @@ body {
         margin-bottom: 0.5em;
       }
     }
-   
+    
+    ul#locales {
+      margin-top: 0;
+      margin-bottom: 1em;
+      margin-left: 0;
+      padding-left: 0;
+      font-size: 1.1em;
+      
+      &:before {
+        content: "Language:";
+        font-weight: bold;
+      }
+
+      li {
+        display: inline;
+      }
+    }
+
     p.api_key {
       text-align: center;
       font-size: 1.5em;

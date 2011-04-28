@@ -26,6 +26,17 @@ describe "working with a project", :type => :request do
         "en.application.home.body" => "This is the home page."
       })
     end
+    
+    it "allows the locale to be selected" do
+      visit '/projects/test'
+      within "ul#locales" do
+        page.should have_content "cy"
+        page.should have_content "en"
+      end
+
+      click_link "cy"
+      page.should have_content "Test Project (cy)"
+    end
 
     it "displays a list of all the known blurbs in the default locale on the project index" do
       visit '/projects/test'
