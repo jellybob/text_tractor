@@ -1,5 +1,6 @@
 require 'text_tractor/version'
 require 'text_tractor/config'
+require 'text_tractor/phrase'
 require 'text_tractor/projects'
 require 'text_tractor/users'
 require 'text_tractor/base'
