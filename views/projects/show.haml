@@ -7,6 +7,15 @@
       - else
         %a{ href: "/projects/#{@project.api_key}/#{locale}" }= locale
 
+%form#filter{ method: "get" }
+  %label{ for: "state" } Filter:
+  %select#state{ name: "state" }
+    - { "all" => "All", "needs_work" => "Requires work", "translated" => "Translated", "untranslated" => "Untranslated", "stale" => "Stale" }.each do |key, value|
+      - if key == params["state"]
+        %option{ selected: "selected", value: key }= value
+      - else
+        %option{ value: key }= value
+
 %p Click on a phrase to edit it.
 
 %dl

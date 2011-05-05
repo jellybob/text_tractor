@@ -1,8 +1,12 @@
 $(function () {
   $('a').pjax('#content')
+  
+  $('form#filter select').live('change', function () {
+    $(this).parent().submit()
+  })
 
   $('dd p.translation').live('click', function () {
-    $.ajax(document.location.href + "/" + $(this).parent().attr("data-key").replace(/\./g, "/"), {
+    $.ajax(document.location.href.replace(/\?.*/, '') + "/" + $(this).parent().attr("data-key").replace(/\./g, "/"), {
       headers: {
         'X-PJAX': true
       },

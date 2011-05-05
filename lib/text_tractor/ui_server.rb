@@ -106,14 +106,30 @@ module TextTractor
       end
     end
     
-    def phrase_list(api_key, locale = nil)
+    def phrase_list(api_key, locale = nil, state = "all")
       return not_authorised unless Projects.authorised?(current_user, api_key)
       
       @project = Projects.get(api_key)
       @locale = locale || @project.default_locale
       @phrases = @project.draft_phrases
+      unless state.nil? || state == "all"
+        @phrases = @phrases.select { |key, value|
+          valid_states = case state
+                         when "translated"
+                           [ :translated ]
+                         when "untranslated"
+                           [ :untranslated ]
+                         when "stale"
+                           [ :stale ]
+                         when "needs_work"
+                           [ :stale, :untranslated ]
+                         end
+
+          valid_states.include? value[locale].state
+        }
+      end
       
-      if @phrases.size > 0
+      if @phrases.size > 0 || params.key?("state")
         render_haml :"projects/show"
       else
         render_haml :"projects/getting_started"
@@ -121,11 +137,11 @@ module TextTractor
     end
     
     get '/projects/:api_key' do |api_key|
-      return phrase_list(api_key)
+      return phrase_list(api_key, nil, params["state"])
     end
     
     get '/projects/:api_key/:locale' do |api_key, locale|
-      return phrase_list(api_key, locale)
+      return phrase_list(api_key, locale, params["state"])
     end
     
     post '/projects' do

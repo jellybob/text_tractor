@@ -75,5 +75,63 @@ describe "working with a project", :type => :request do
         page.should have_content "Home Page"
       end
     end
+
+    context "when filtering to a specific state" do
+      before(:each) do
+        Time.stub(:now).and_return(Time.new(2011, 01, 01, 00, 00, 00))
+        @project.update_draft_blurbs({
+          "en.application.untranslated" => "Hello",
+          "en.application.translated" => "Hello",
+          "cy.application.translated" => "Foo",
+          "en.application.stale" => "Hello",
+          "cy.application.stale" => "Foo"
+        })
+
+        Time.stub(:now).and_return(Time.new(2011, 01, 01, 00, 00, 30))
+        @project.update_draft_blurbs({
+          "en.application.stale" => "Hello world"
+        }, overwrite: true)
+      end
+
+      it "shows all phrases if no filter was set" do
+        visit "/projects/test/cy"
+
+        page.should have_content "Application / Untranslated"
+        page.should have_content "Application / Translated"
+        page.should have_content "Application / Stale"
+      end
+
+      it "shows only untranslated phrases if the Untranslated filter was set" do
+        visit "/projects/test/cy?state=untranslated"
+
+        page.should have_content "Application / Untranslated"
+        page.should_not have_content "Application / Translated"
+        page.should_not have_content "Application / Stale"
+      end
+
+      it "shows only untranslated and stale phrases if the Needs Work filter was set" do
+        visit "/projects/test/cy?state=needs_work"
+
+        page.should have_content "Application / Untranslated"
+        page.should_not have_content "Application / Translated"
+        page.should have_content "Application / Stale"
+      end
+
+      it "shows only stale phrases if the Stale filter was set" do
+        visit "/projects/test/cy?state=stale"
+
+        page.should_not have_content "Application / Untranslated"
+        page.should_not have_content "Application / Translated"
+        page.should have_content "Application / Stale"
+      end
+
+      it "shows only translated phrases if the Translated filter was set" do
+        visit "/projects/test/cy?state=translated"
+
+        page.should_not have_content "Application / Untranslated"
+        page.should_not have_content "Application / Stale"
+        page.should have_content "Application / Translated"
+      end
+    end
   end
 end
