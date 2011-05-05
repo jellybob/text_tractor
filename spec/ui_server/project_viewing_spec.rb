@@ -46,6 +46,7 @@ describe "working with a project", :type => :request do
     
     it "displays a list of all the known blurbs in the selected locale if one was set" do
       visit '/projects/test/cy'
+      
       page.should have_content "Application / Home / Title"
       page.should have_content "Dafan"
     end

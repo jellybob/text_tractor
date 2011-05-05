@@ -7,7 +7,7 @@ module TextTractor
       @translations = {}
       
       phrase.each do |locale, value|
-        @translations[locale.to_s] = Translation.new(self, locale.to_s, value[:text], Time.parse(value[:translated_at]))
+        @translations[locale.to_s] = Translation.new(self, locale.to_s, value["text"], value["translated_at"] && Time.parse(value["translated_at"]))
       end
     end
     

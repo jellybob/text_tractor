@@ -74,8 +74,8 @@ module TextTractor
       @locale = locale
       @path = path
       @key = path.gsub("/", ".")
-      encoded = JSON.parse(redis.get("projects:#{@api_key}:draft_blurbs:#{@key}"))
-      @blurb = encoded[locale] || ""
+      @project = Projects.get(api_key)
+      @phrase = Phrase.new(@project, JSON.parse(redis.get("projects:#{@api_key}:draft_blurbs:#{@key}")))
 
       render_haml :"blurbs/edit"
     end
@@ -89,14 +89,14 @@ module TextTractor
       @value = params[:blurb]
       
       @project.update_draft_blurbs({ @key => @value }, { :overwrite => true })
-      @phrase = JSON.parse(redis.get("projects:#{@api_key}:draft_blurbs:#{@phrase_key}"))
+      @phrase = Phrase.new(@project, JSON.parse(redis.get("projects:#{@api_key}:draft_blurbs:#{@phrase_key}")))
       
       if pjax?
         @value = haml :"blurbs/value", :layout => false, :locals => { 
-          phrase: @phrase, 
-          key: @key, 
+          phrase: @phrase[@locale], 
+          key: @key.split(".", 2).last, 
           locale: @locale, 
-          original: @phrase[@project.default_locale], 
+          original: @phrase[@project.default_locale].to_s, 
           show_original: @project.default_locale != @locale 
         }
         

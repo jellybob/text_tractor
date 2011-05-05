@@ -36,18 +36,20 @@ module TextTractor
     end
     
     # Set the overwrite option to true to force overwriting existing translations.
-    def update_blurb(state, locale, phrase, value, overwrite = false)
-      key = "projects:#{api_key}:#{state}_blurbs:#{phrase}"
+    def update_blurb(state, locale, key, value, overwrite = false)
+      id = key
+      key = "projects:#{api_key}:#{state}_blurbs:#{key}"
       
-      current_value = redis.sismember("projects:#{api_key}:#{state}_blurb_keys", phrase) ? JSON.parse(redis.get(key)) : {}
+      current_value = redis.sismember("projects:#{api_key}:#{state}_blurb_keys", id) ? JSON.parse(redis.get(key)) : {}
+      phrase = Phrase.new(self, current_value)
       
       # A new value is only written if no previous translation was present, or overwriting is enabled.
-      if overwrite || !current_value.key?(locale)
-        current_value[locale] = value
+      if overwrite || phrase[locale].text.nil?
+        phrase[locale] = value
         
-        redis.sadd "projects:#{api_key}:#{state}_blurb_keys", phrase
+        redis.sadd "projects:#{api_key}:#{state}_blurb_keys", id
         redis.sadd "projects:#{api_key}:locales", locale
-        redis.set key, current_value.to_json
+        redis.set key, phrase.to_hash.to_json
         redis.set "projects:#{api_key}:#{state}_blurbs_etag", Projects.random_key
       end
     end
@@ -77,7 +79,7 @@ module TextTractor
       redis.smembers("projects:#{api_key}:#{state}_blurb_keys").each do |key|
         translations = JSON.parse(redis.get("projects:#{api_key}:#{state}_blurbs:#{key}"))
         translations.each do |locale, value|
-          blurbs["#{locale}.#{key}"] = value
+          blurbs["#{locale}.#{key}"] = value["text"]
         end
       end
 
@@ -95,7 +97,7 @@ module TextTractor
     def phrases(state)
       phrases = {}
       redis.smembers("projects:#{api_key}:#{state}_blurb_keys").each do |key|
-        phrases[key] = JSON.parse(redis.get("projects:#{api_key}:#{state}_blurbs:#{key}"))
+        phrases[key] = Phrase.new(self, JSON.parse(redis.get("projects:#{api_key}:#{state}_blurbs:#{key}")))
       end
 
       phrases
@@ -191,7 +193,6 @@ EOF
           locale, phrase = blurb.split(".", 2)
           
           project.update_blurb("draft", locale, phrase, value, true)
-          
           redis.del("projects:#{api_key}:draft_blurbs:#{blurb}")
           redis.srem("projects:#{api_key}:draft_blurb_keys", blurb)
         end

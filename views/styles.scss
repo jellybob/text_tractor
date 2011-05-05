@@ -167,6 +167,21 @@ body {
       
       dt {
         font-weight: bold;
+        background-position: top left;
+        background-repeat: no-repeat;
+        padding-left: 20px;
+        
+        &.state-translated {
+          background-image: url("/images/translated.png");
+        }
+        
+        &.state-untranslated {
+          background-image: url("/images/untranslated.png");
+        }
+        
+        &.state-stale {
+          background-image: url("/images/stale.png");
+        }
       }
 
       dd {

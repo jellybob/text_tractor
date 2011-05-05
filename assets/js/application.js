@@ -8,6 +8,7 @@ $(function () {
       },
       context: $(this).parent(),
       success: function (data) {
+        $(this).prev("dt").remove()
         $(this).html(data)
         $(this).find('textarea').focus()
       }
@@ -20,6 +21,7 @@ $(function () {
       data: $(this).serialize(),
       context: $(this).parent(),
       success: function (data) {
+        $(this).prev("dt").remove()
         $(this).html(data)
       },
       headers: {

@@ -1,6 +1,7 @@
+%dt{ class: "state-#{phrase.state}" }= key.split(".").collect { |part| part.gsub("_", " ").capitalize }.join(" / ")
 %dd{ "data-key" => key }
-  - unless phrase[locale].nil? || phrase[locale].empty?
-    %p.translation= phrase[locale]
+  - unless phrase.to_s.empty?
+    %p.translation= phrase.to_s
   - else
     %p.translation.empty Click to add a translation
   

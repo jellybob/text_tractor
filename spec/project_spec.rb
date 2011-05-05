@@ -23,6 +23,8 @@ describe TextTractor::Project do
   specify { should respond_to(:update_draft_blurbs) }
   describe "updating the draft blurbs" do
     before(:each) do
+      Time.stub(:now).and_return(Time.new(2011, 01, 01, 00, 00, 00))
+      
       @project = TextTractor::Projects.create(name: "Test", api_key: "test")
       @project.update_draft_blurbs(
         "en.application.home.title" => "Home Page",
@@ -31,13 +33,12 @@ describe TextTractor::Project do
     end
     
     it "saves the new translations" do
-      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.title")).should == {
-        "en" => "Home Page"
-      }
-
-      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.body")).should == {
-        "en" => "This is the home page."
-      }
+      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.title")).should == TextTractor::Phrase.new(@project, { 
+        "en" => { "text" => "Home Page", "translated_at" => Time.now.to_s }
+      }).to_hash
+      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.body")).should == TextTractor::Phrase.new(@project, {
+        "en" => { "text" => "This is the home page.", "translated_at" => Time.now.to_s }
+      }).to_hash
     end
     
     it "correctly retains quotes" do
@@ -45,9 +46,9 @@ describe TextTractor::Project do
         "en.application.home.quoted" => %q{"I would like to test quoting." said Jon.}
       )
             
-      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.quoted")).should == {
-        "en" => %q{"I would like to test quoting." said Jon.}
-      }
+      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.quoted")).should == TextTractor::Phrase.new(@project, {
+        "en" => { "text" => %q{"I would like to test quoting." said Jon.}, "translated_at" => Time.now.to_s }
+      }).to_hash
     end
 
     it "generates a new ETag if the translations have changed" do
@@ -59,9 +60,9 @@ describe TextTractor::Project do
         "en.application.home.title" => "A different title"
       )
 
-      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.title")).should == {
-        "en" => "Home Page" 
-      }
+      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.title")).should == TextTractor::Phrase.new(@project, {
+        "en" => { "text" => "Home Page", "translated_at" => Time.now.to_s }
+      }).to_hash
     end
 
     it "replaces the content of existing translations if :overwrite is set" do
@@ -69,9 +70,9 @@ describe TextTractor::Project do
         "en.application.home.title" => "A different title"
       }, :overwrite => true)
       
-      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.title")).should == {
-        "en" => "A different title" 
-      }
+      JSON.parse(redis.get("projects:test:draft_blurbs:application.home.title")).should == TextTractor::Phrase.new(@project, {
+        "en" => { "text" => "A different title", "translated_at" => Time.now.to_s }
+      }).to_hash
     end
 
     it "does not generate a new ETag if the translations did not change" do
@@ -109,6 +110,7 @@ describe TextTractor::Project do
   specify { should respond_to(:draft_phrases) }
   describe "getting the phrase list for a project" do
     before(:each) do
+      Time.stub(:now).and_return(Time.new(2011, 01, 01, 00, 00, 00))
       @project = TextTractor::Projects.create(name: "Test Project", api_key: "test")
       @project.update_draft_blurbs({
         "en.application.home.title" => "Home Page",
@@ -118,14 +120,14 @@ describe TextTractor::Project do
     end
 
     it "returns the list of phrases, in all known languages" do
-      @project.draft_phrases.should == {
-        "application.home.title" => {
-          "en" => "Home Page",
-          "cy" => "Dafan"
-        },
-        "application.home.body" => {
-          "en" => "This is the home page."
-        }
+      @project.draft_phrases.inject({}) { |memo, value| memo[value[0]] = value[1].to_hash; memo }.should == {
+        "application.home.title" => TextTractor::Phrase.new(@project, {
+          "en" => { "text" => "Home Page", "translated_at" => Time.now.to_s },
+          "cy" => { "text" => "Dafan", "translated_at" => Time.now.to_s }
+        }).to_hash,
+        "application.home.body" => TextTractor::Phrase.new(@project, {
+          "en" => { "text" => "This is the home page.", "translated_at" => Time.now.to_s }
+        }).to_hash
       }
     end
   end
@@ -255,6 +257,7 @@ describe TextTractor::Projects do
   specify { TextTractor::Projects.should respond_to(:update_datastore) }
   describe "migrating a data store to the current version" do
     before(:each) do
+      Time.stub(:now).and_return(Time.new(2011, 01, 01, 00, 00, 00))
       TextTractor::Projects.create(name: "Test", api_key: "test")
       
       redis.set("projects:test:draft_blurbs:en.application.home.title", "Home page")
@@ -273,8 +276,8 @@ describe TextTractor::Projects do
     it "places all translations of a phrase under one key" do
       redis.sismember("projects:test:draft_blurb_keys", "application.home.title").should be_true
       redis.get("projects:test:draft_blurbs:application.home.title").should == {
-        "en" => "Home page",
-        "cy" => "Hafan"
+        "en" => { "text" => "Home page", "translated_at" => Time.now.to_s },
+        "cy" => { "text" => "Hafan", "translated_at" => Time.now.to_s }
       }.to_json
     end
 

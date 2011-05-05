@@ -4,8 +4,8 @@ describe TextTractor::Phrase do
   let(:project) { TextTractor::Project.new(default_locale: "en", name: "Test Project", api_key: "test") }
   subject do
     TextTractor::Phrase.new(project, {
-      en: { text: "An example", translated_at: Time.new(2011, 01, 03, 00, 32, 00).to_s }, 
-      cy: { text: "An example in Welsh", translated_at: Time.new(2011, 01, 03, 00, 12, 00).to_s }
+      en: { "text" => "An example", "translated_at" => Time.new(2011, 01, 03, 00, 32, 00).to_s }, 
+      cy: { "text" => "An example in Welsh", "translated_at" => Time.new(2011, 01, 03, 00, 12, 00).to_s }
     })
   end
   

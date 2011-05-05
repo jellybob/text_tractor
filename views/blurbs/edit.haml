@@ -1,3 +1,5 @@
-%form{ method: "post", action: "/projects/#{@api_key}/#{@locale}/#{@path}" }
-  %textarea{ name: "blurb" }= @blurb.strip
-  %input{ type: "submit", value: "Save" }
+%dt{ class: "state-#{@phrase[@locale].state}" }= @path.split("/").collect { |part| part.gsub("_", " ").capitalize }.join(" / ")
+%dd{ "data-key" => @path.gsub("/", ".") }
+  %form{ method: "post", action: "/projects/#{@api_key}/#{@locale}/#{@path}" }
+    %textarea{ name: "blurb" }= @phrase[@locale].to_s.strip
+    %input{ type: "submit", value: "Save" }
