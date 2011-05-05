@@ -38,23 +38,18 @@ module TextTractor
     # Set the overwrite option to true to force overwriting existing translations.
     def update_blurb(state, locale, phrase, value, overwrite = false)
       key = "projects:#{api_key}:#{state}_blurbs:#{phrase}"
-      written = false
       
       current_value = redis.sismember("projects:#{api_key}:#{state}_blurb_keys", phrase) ? JSON.parse(redis.get(key)) : {}
       
+      # A new value is only written if no previous translation was present, or overwriting is enabled.
       if overwrite || !current_value.key?(locale)
         current_value[locale] = value
-        write = true
-      end
-
-      if write
+        
         redis.sadd "projects:#{api_key}:#{state}_blurb_keys", phrase
         redis.sadd "projects:#{api_key}:locales", locale
         redis.set key, current_value.to_json
         redis.set "projects:#{api_key}:#{state}_blurbs_etag", Projects.random_key
       end
-
-      write
     end
 
     def update_blurbs(state, blurbs = {}, options = {})
