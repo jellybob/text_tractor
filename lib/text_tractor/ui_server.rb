@@ -10,7 +10,7 @@ module TextTractor
       end
 
       def pjax?
-        env.key? "HTTP_X_PJAX"
+        env.key? "HTTP_X_PJAX" || params["layout"] == "false"
       end
 
       def projects
@@ -92,7 +92,15 @@ module TextTractor
       @phrase = JSON.parse(redis.get("projects:#{@api_key}:draft_blurbs:#{@phrase_key}"))
       
       if pjax?
-        haml :"blurbs/value", :layout => false
+        @value = haml :"blurbs/value", :layout => false, :locals => { 
+          phrase: @phrase, 
+          key: @key, 
+          locale: @locale, 
+          original: @phrase[@project.default_locale], 
+          show_original: @project.default_locale != @locale 
+        }
+        
+        haml :"blurbs/_blurb", :layout => false
       else
         redirect "/projects/#{api_key}"
       end

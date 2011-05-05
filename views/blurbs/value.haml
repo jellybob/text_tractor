@@ -1,8 +1,8 @@
-%dd{ "data-key" => "#{@locale}/#{@key}" }
-  - if @phrase[@locale]
-    %p.translation= @phrase[@locale]
+%dd{ "data-key" => key }
+  - unless phrase[locale].nil? || phrase[locale].empty?
+    %p.translation= phrase[locale]
   - else
     %p.translation.empty Click to add a translation
   
-  - if @locale != @project.default_locale
-    %p.original= @phrase[@project.default_locale]
+  - if show_original
+    %p.original= original

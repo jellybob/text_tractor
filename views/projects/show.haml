@@ -12,10 +12,11 @@
 %dl
   - @phrases.sort.each do |key, value|
     %dt= key.split(".").collect { |part| part.gsub("_", " ").capitalize }.join(" / ")
-    %dd{ "data-key" => key }
-      - if value[@locale]
-        %p.translation= value[@locale]
-      - else
-        %p.translation.empty Click to add a translation
-      - if @locale != @project.default_locale
-        %p.original= value[@project.default_locale]
+    = haml :"blurbs/value", :layout => false, :locals => { :phrase => value, :key => key, :locale => @locale, :original => value[@project.default_locale], :show_original => @project.default_locale != @locale }
+    -# %dd{ "data-key" => key }
+    -#   - if value[@locale]
+    -#     %p.translation= value[@locale]
+    -#   - else
+    -#     %p.translation.empty Click to add a translation
+    -#   - if @locale != @project.default_locale
+    -#     %p.original= value[@project.default_locale]
