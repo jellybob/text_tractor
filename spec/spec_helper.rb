@@ -18,7 +18,7 @@ end
 
 RSpec.configure do |conf|
   conf.include Rack::Test::Methods
-  conf.include Capybara
+  conf.include Capybara::DSL
   
   conf.before(:each) do
     redis.flushdb
@@ -38,7 +38,7 @@ RSpec.configure do |conf|
     password ||= TextTractor.configuration.default_password
     
     basic_authorize username, password
-    Capybara.current_session.driver.basic_authorize username, password
+    page.driver.browser.basic_authorize username, password
   end
   
   def create_user(username, password, superuser = false)
