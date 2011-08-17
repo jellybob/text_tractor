@@ -146,7 +146,7 @@ module TextTractor
     
     post '/projects' do
       project = Projects.create(params[:project])
-      redirect "/projects/#{project["api_key"]}"
+      redirect "/projects/#{project["api_key"]}/#{project["default_locale"]}"
     end
   end
 end

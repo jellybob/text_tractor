@@ -5,7 +5,7 @@
     %ul
       - @projects.each do |project|
         %li
-          %a{ href: "/projects/#{project["api_key"]}" }= project["name"]
+          %a{ href: "/projects/#{project["api_key"]}/#{project["default_locale"]}" }= project["name"]
   - else
     %p It doesn't look like you've got any projects yet.
 
