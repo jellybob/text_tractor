@@ -26,7 +26,7 @@ Once you do that you'll be able to access the web interface. Unless you've chang
 username and password is "admin", and "password". You should change the defaults.
 
 You should probably also change the settings for where you're hosted, but that's not essential. If you don't change the
-settings then the instructions you get for setting up a new project will wrong though.
+settings then the instructions you get for setting up a new project will be wrong though.
 
 To create your first project hit the big "New Project" button, and give it a name. You'll then be presented with some
 instructions on setting up your application to use TextTractor for it's copy. Once you've finished doing that, and some content
