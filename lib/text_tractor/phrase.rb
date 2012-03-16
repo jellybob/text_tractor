@@ -60,6 +60,7 @@ module TextTractor
 
       def state
         return :untranslated if translated_at.nil?
+        return :translated if phrase[default_locale].translated_at.nil?
         translated_at >= phrase[default_locale].translated_at ? :translated : :stale
       end
     end
