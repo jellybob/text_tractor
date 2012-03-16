@@ -1,8 +1,12 @@
 # TextTractor #
 
-This project will be changing it's name just as soon as I can think of a new one, after Thoughtbot
-(quite legitimately) requested that I remove the word "copy" from the name, as it's a part of their
-trademark.
+## DEPRECATED PROJECT ##
+
+Thoughtbot have [[open sourced Copycopter|http://robots.thoughtbot.com/post/19388751626/copycopter-is-now-open-source]],
+so you may as well just go and use that. It's actively maintained, and supports multiple locales, along with a bunch
+of other good stuff.
+
+## Introduction ##
 
 TextTractor is an Open Source implementation of Copycopter's API, and web interface to allow clients to
 edit the copy on their websites. It's designed to be compatible with the copycopter_client gem.
