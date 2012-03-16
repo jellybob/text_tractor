@@ -2,7 +2,7 @@
 
 ## DEPRECATED PROJECT ##
 
-Thoughtbot have [[open sourced Copycopter|http://robots.thoughtbot.com/post/19388751626/copycopter-is-now-open-source]],
+Thoughtbot have [open sourced Copycopter](http://robots.thoughtbot.com/post/19388751626/copycopter-is-now-open-source),
 so you may as well just go and use that. It's actively maintained, and supports multiple locales, along with a bunch
 of other good stuff.
 
